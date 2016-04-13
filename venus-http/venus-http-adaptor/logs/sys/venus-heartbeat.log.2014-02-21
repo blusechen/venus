@@ -1,0 +1,2 @@
+2014-02-21 18:13:39.248 [HeartbeatManagerThread] INFO  c.m.toolkit.common.heartbeat.HeartbeatManager - checked task taskName=b-connPool-127.0.0.1, Status=INVALID
+2014-02-21 18:13:39.249 [HeartbeatManagerThread] INFO  c.m.toolkit.common.heartbeat.HeartbeatManager - checked task taskName=b-multi-connPool-defaultRemote15, Status=INVALID

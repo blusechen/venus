@@ -1,0 +1,70 @@
+#!/bin/bash
+
+#-------------------------------------------------------------------
+#    Venus Bootstrap Script 
+#
+#    需要设置如下环境变量：
+#
+#      JAVA_HOME           - JDK的安装路径
+#
+#-------------------------------------------------------------------
+
+# 判断是否在cygwin环境下
+cygwin=false;
+case "`uname`" in
+  CYGWIN*) cygwin=true ;;
+esac
+
+# 确定安装了java，并设置了JAVA_HOME环境变量.
+noJavaHome=false
+if [ -z "$JAVA_HOME" ] ; then
+    noJavaHome=true
+fi
+if $cygwin ; then
+    [ -n "$JAVA_HOME" ] &&
+        JAVA_HOME=`cygpath -u "$JAVA_HOME"`
+fi
+if [ ! -e "$JAVA_HOME/bin/java" ] ; then
+    noJavaHome=true
+fi
+if $noJavaHome ; then
+    echo "Error: JAVA_HOME environment variable is not set."
+    exit 1
+fi
+
+# 用该脚本的位置推断PROJECT_HOME的路径.
+CURR_DIR=`pwd`
+cd `dirname "$0"`/..
+PROJECT_HOME=`pwd`
+cd $CURR_DIR
+
+if [ -z "$PROJECT_HOME" ] ; then
+    echo
+    echo "error! environment variable“PROJECT_HOME”must be setted "
+    echo
+    exit 1
+fi
+
+
+CLASSPATH="$PROJECT_HOME/lib/plexus-classworlds-2.4.4-HEXNOVA.jar"
+MAIN_CLASS="org.codehaus.classworlds.SignalSender"
+
+if $cygwin ; then
+    JAVA_HOME=`cygpath -w "$JAVA_HOME"`
+    PROJECT_HOME=`cygpath -w "$PROJECT_HOME"`
+    CLASSPATH=`cygpath -p -w "$CLASSPATH"`
+fi
+
+if [ -f "$PROJECT_HOME/jvm.properties" ]; then
+. $PROJECT_HOME/jvm.properties
+fi
+
+
+DEFAULT_OPTS="$DEFAULT_OPTS -Dproject.home=\"$PROJECT_HOME\" -Dproject.name=\"$APP_NAME\"  "
+
+if [ -n "$APP_PID_PATH" ]; then
+	DEFAULT_OPTS="$DEFAULT_OPTS -Dproject.pid.path=\"$APP_PID_PATH\""
+fi
+
+CMD="exec  \"$JAVA_HOME/bin/java\"  $DEFAULT_OPTS -classpath \"$CLASSPATH\"  $MAIN_CLASS $@"
+eval $CMD

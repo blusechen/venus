@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.meidusa.venus.commons</groupId>
+		<artifactId>venus-commons</artifactId>
+		<version>3.2.15</version>
+	</parent>
+	<artifactId>venus-common-service</artifactId>
+	<packaging>jar</packaging>
+	<name>${project.artifactId} v${project.version}</name>
+	<url>http://maven.apache.org</url>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>xstream</groupId>
+			<artifactId>xstream</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.meidusa.venus.commons</groupId>
+			<artifactId>venus-common-exception</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.meidusa.venus.commons</groupId>
+			<artifactId>venus-common-io</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>

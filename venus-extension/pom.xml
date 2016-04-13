@@ -1,0 +1,19 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>venus</artifactId>
+    <groupId>com.meidusa.venus</groupId>
+    <relativePath>..</relativePath>
+    <version>3.2.15</version>
+  </parent>
+  
+  <groupId>com.meidusa.venus.extension</groupId>
+  <artifactId>venus-extension</artifactId>
+  <packaging>pom</packaging>
+  <name>${project.artifactId} v${project.version}</name>
+  <modules>
+  		<module>venus-extension-xmpp</module>
+        <module>venus-extension-cache</module>
+        <module>venus-extension-monitor</module>
+  </modules>
+</project>

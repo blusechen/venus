@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<digester-rules>
+	<pattern value="*/property">
+		<pattern value="bean">
+			<object-create-rule-with-init attrname="class"/>
+			<set-properties-rule />
+			<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+		</pattern>
+
+	</pattern>
+	<pattern value="exceptions">
+		<object-create-rule-with-init classname="java.util.ArrayList" attrname="class"/>
+		<pattern value="exception">
+			<object-create-rule-with-init classname="com.meidusa.venus.exception.xml.ExceptionConfig"/>
+			<set-properties-rule />
+			<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+			<set-next-rule methodname="add"/>
+		</pattern>
+	</pattern>
+	
+</digester-rules> 

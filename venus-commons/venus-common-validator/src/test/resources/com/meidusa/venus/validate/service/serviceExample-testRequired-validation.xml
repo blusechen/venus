@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE validators SYSTEM "venus-validator-1.0.0.dtd">
+<validators>
+	<field name="value">
+		<field-validator type="required">
+		</field-validator>
+	</field>
+</validators>

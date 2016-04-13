@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE objectMap SYSTEM "http://amoeba.meidusa.com/objectMap.dtd">
+<objectMap version="1.0">
+        <entry key="random">java.util.Random</entry>
+        <entry key="atomicInteger">java.util.concurrent.atomic.AtomicInteger</entry>
+        <entry key="atomicLong">java.util.concurrent.atomic.AtomicLong</entry>
+        <entry key="randomRow">
+        	<bean class="com.meidusa.venus.benchmark.FileLineRandomData">
+        		<property name="file">${amoeba.home}/benchmark/1.txt</property>
+        	</bean>
+        </entry>
+</objectMap>

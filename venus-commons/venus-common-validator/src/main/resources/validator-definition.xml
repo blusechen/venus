@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE validators SYSTEM "venus-validator-definition-1.0.0.dtd">
+<!-- START SNIPPET: validators-default -->
+<validators>
+    <validator name="required" class="com.meidusa.venus.validate.validator.RequiredFieldValidator"/>
+    <validator name="stringnotempty" class="com.meidusa.venus.validate.validator.StringNotEmptyValidator"/>
+    <validator name="stringin" class="com.meidusa.venus.validate.validator.StringInValidator"/>
+    <validator name="int" class="com.meidusa.venus.validate.validator.IntRangeFieldValidator"/>
+    <validator name="long" class="com.meidusa.venus.validate.validator.LongRangeFieldValidator"/>
+    <validator name="double" class="com.meidusa.venus.validate.validator.DoubleRangeFieldValidator"/>
+    <validator name="date" class="com.meidusa.venus.validate.validator.DateRangeFieldValidator"/>
+    <validator name="expression" class="com.meidusa.venus.validate.validator.ExpressionValidator"/>
+    <validator name="fieldexpression" class="com.meidusa.venus.validate.validator.FieldExpressionValidator"/>
+    <validator name="email" class="com.meidusa.venus.validate.validator.EmailValidator"/>
+    <validator name="url" class="com.meidusa.venus.validate.validator.URLValidator"/>
+    <validator name="visitor" class="com.meidusa.venus.validate.validator.VisitorFieldValidator"/>
+    <validator name="stringlength" class="com.meidusa.venus.validate.validator.StringLengthFieldValidator"/>
+    <validator name="regex" class="com.meidusa.venus.validate.validator.RegexFieldValidator"/>
+    <validator name="stringDateFormat" class="com.meidusa.venus.validate.validator.StringDateFormatValidator"/>
+</validators>
+<!--  END SNIPPET: validators-default -->

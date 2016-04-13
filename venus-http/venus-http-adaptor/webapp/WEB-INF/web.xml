@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+        http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    version="2.5">
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>file:${project.home}/conf/applicationContext.xml</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>remoteIpAddressList</param-name>
+		<param-value>127.0.0.1:16800</param-value>
+	</context-param>
+	
+	
+	<filter>
+		<filter-name>VenusTracerCleanFilter</filter-name>
+		<filter-class>com.meidusa.venus.http.filter.VenusTracerCleanFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>VenusTracerCleanFilter</filter-name>
+		<url-pattern>/services/*</url-pattern>
+	</filter-mapping>
+	
+	<servlet>
+		<servlet-name>default</servlet-name>
+		<servlet-class>org.eclipse.jetty.servlet.DefaultServlet</servlet-class>
+		<init-param>
+			<param-name>dirAllowed</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet>
+		<servlet-name>venus</servlet-name>
+		<servlet-class>com.meidusa.venus.frontend.http.VenusHttpServlet</servlet-class>
+		<init-param>
+			<param-name>uri-pattern</param-name>
+			<!-- 
+				可以将用URI=/services/com.meidusa.HelloService/getHello
+				匹配以后，得到:
+				serviceName=com.meidusa.HelloService
+				endpoint=getHello
+				
+				uri前缀不包含 servlet contextPath,请与 servlet-mapping保持一致
+			 -->
+			<param-value>/services/([a-zA-Z_0-9.]+)/([a-zA-Z_0-9]+)</param-value>
+		</init-param>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>venus</servlet-name>
+	 	<url-pattern>/services/*</url-pattern>
+	</servlet-mapping>
+	
+</web-app>

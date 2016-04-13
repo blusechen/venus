@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE validators SYSTEM "venus-validator-1.0.0.dtd">
+<validators>
+	<field name="longValue">
+		<field-validator type="long">
+			<property name="min">1</property>
+			<property name="max">100</property>
+		</field-validator>
+	</field>
+</validators>

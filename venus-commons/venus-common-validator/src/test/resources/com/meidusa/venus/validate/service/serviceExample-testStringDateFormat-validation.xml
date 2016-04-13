@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE validators SYSTEM "venus-validator-1.0.0.dtd">
+<validators>
+	<field name="requestTime">
+		<field-validator type="stringDateFormat">
+			<property name="dateFormat">yyyyMMddHHmmss</property>
+			<property name="message">#{*} must match pattern "@{dateFormat}".</property>
+		</field-validator>
+	</field>
+</validators>

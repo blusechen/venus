@@ -1,0 +1,195 @@
+2014-07-18 19:58:47.624 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 19:58:47.642 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:00:00.015 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:00:00.033 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:01:12.103 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:01:12.120 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:01:53.492 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:01:53.510 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:03:49.948 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:03:50.347 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:04:55.365 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:04:55.383 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:05:32.829 [HeartbeatManagerThread] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 20:05:54.453 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:05:59.436 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:06:04.437 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:06:09.435 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:06:29.436 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:06:34.431 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:06:39.437 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:06:44.439 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:06:49.438 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:06:54.438 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:06:59.438 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 20:07:04.437 [Check remote Connection] ERROR com.meidusa.venus.frontend.http.VenusHttpServlet2 - check remote error
+java.net.ConnectException: Connection refused: connect
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213) ~[na:1.6.0_30]
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200) ~[na:1.6.0_30]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:529) ~[na:1.6.0_30]
+	at java.net.Socket.connect(Socket.java:478) ~[na:1.6.0_30]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkRemoteVenus(VenusHttpServlet2.java:140) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.checkAll(VenusHttpServlet2.java:127) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2.access$0(VenusHttpServlet2.java:123) [classes/:na]
+	at com.meidusa.venus.frontend.http.VenusHttpServlet2$1.run(VenusHttpServlet2.java:114) [classes/:na]
+	at java.util.TimerThread.mainLoop(Timer.java:512) [na:1.6.0_30]
+	at java.util.TimerThread.run(Timer.java:462) [na:1.6.0_30]
+2014-07-18 21:21:56.137 [Timer-1] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-07-18 22:05:55.433 [Timer-1] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success

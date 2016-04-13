@@ -1,0 +1,69 @@
+#!/bin/bash
+
+#-------------------------------------------------------------------
+#    Venus Bootstrap Script 
+#
+#    需要设置如下环境变量：
+#
+#      JAVA_HOME           - JDK的安装路径
+#
+#-------------------------------------------------------------------
+
+# 判断是否在cygwin环境下
+cygwin=false;
+case "`uname`" in
+  CYGWIN*) cygwin=true ;;
+esac
+
+# 确定安装了java，并设置了JAVA_HOME环境变量.
+noJavaHome=false
+if [ -z "$JAVA_HOME" ] ; then
+    noJavaHome=true
+fi
+if $cygwin ; then
+    [ -n "$JAVA_HOME" ] &&
+        JAVA_HOME=`cygpath -u "$JAVA_HOME"`
+fi
+if [ ! -e "$JAVA_HOME/bin/java" ] ; then
+    noJavaHome=true
+fi
+if $noJavaHome ; then
+    echo "Error: JAVA_HOME environment variable is not set."
+    exit 1
+fi
+
+# 用该脚本的位置推断VENUS_HOME的路径.
+CURR_DIR=`pwd`
+cd `dirname "$0"`/..
+VENUS_HOME=`pwd`
+cd $CURR_DIR
+
+if [ -z "$VENUS_HOME" ] ; then
+    echo
+    echo 错误: 必须设置环境变量“VENUS_HOME”，指向VENUS的安装路径
+    echo
+    exit 1
+fi
+
+
+if [ ! -d $VENUS_HOME'/logs' ] ; then
+    mkdir $VENUS_HOME'/logs'
+fi
+
+CLASSPATH="$VENUS_HOME/lib/plexus-classworlds-2.4.4-HEXNOVA.jar"
+MAIN_CLASS="org.codehaus.classworlds.Launcher"
+
+if $cygwin ; then
+    JAVA_HOME=`cygpath -w "$JAVA_HOME"`
+    VENUS_HOME=`cygpath -w "$VENUS_HOME"`
+    CLASSPATH=`cygpath -p -w "$CLASSPATH"`
+fi
+
+
+DEFAULT_OPTS="-server -Xms256m -Xmx1024m -Xss128k"
+# DEFAULT_OPTS="$DEFAULT_OPTS -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+UseParallelGC -XX:+UseBiasedLocking -XX:NewSize=64m"
+DEFAULT_OPTS="$DEFAULT_OPTS -Dproject.home=\"$VENUS_HOME\""
+DEFAULT_OPTS="$DEFAULT_OPTS -Dclassworlds.conf=\"$VENUS_HOME/bin/benchmark.classworlds\""
+
+CMD="exec \"$JAVA_HOME/bin/java\" $DEFAULT_OPTS $OPTS -classpath \"$CLASSPATH\"  $MAIN_CLASS $@"
+eval $CMD

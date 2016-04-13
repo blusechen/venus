@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<venus-client xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="venus-client.xsd">
+	<remotes>
+		<remote name="defaultRemote15" loadbalance="1">
+			<!-- 与远程连接的socket相关的配置 -->
+			<factory>
+				<!-- 支持多节点负责均衡的高可用配置，默认采用轮询  -->
+				<property name="ipAddressList">${venus.service.ipAddressList}</property>
+				
+				<!-- socket的sendBuffer缓冲区大小，单位:K -->
+				<property name="sendBufferSize">${venus.socket.sendBufferSize}</property>
+				
+				<!-- socket的receiveBuffer缓冲区大小，单位:K -->
+				<property name="receiveBufferSize">${venus.socket.receiveBufferSize}</property>
+				
+				<property name="soTimeout">${venus.socket.soTimeout}</property>
+				
+			</factory>
+			
+			<!-- 与每个远程节点的连接池配置，与apache的commons-pool配置一致 -->
+			<pool>
+				<property name="maxActive">10</property>
+				<property name="maxIdle">1</property>
+				<property name="minIdle">1</property>
+				<property name="minEvictableIdleTimeMillis">60000</property>
+				<property name="timeBetweenEvictionRunsMillis">60000</property>
+				<property name="testOnBorrow">true</property>
+				<property name="testWhileIdle">true</property>
+			</pool>
+			
+			<!-- 用户名、密码认证方式  -->
+			<authenticator class="com.meidusa.venus.client.authenticate.UserPasswordAuthenticator">
+				<property name="username">venus</property>
+				<property name="password">venus</property>
+				<!-- 对象系列化方式，目前支持3种 ： 0:json ,1：bson , 2: java对象系列化 -->
+				<property name="serializeType">0</property>
+			</authenticator>
+			
+		</remote>
+	</remotes>
+</venus-client>

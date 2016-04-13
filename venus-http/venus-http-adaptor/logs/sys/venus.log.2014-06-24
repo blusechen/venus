@@ -1,0 +1,8 @@
+2014-06-24 15:22:55.448 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.58:16800 success
+2014-06-24 15:22:55.477 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.58:16800 success
+2014-06-24 15:28:08.959 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-06-24 15:28:08.980 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-06-24 15:31:50.196 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.127:16800 success
+2014-06-24 15:31:50.242 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.127:16800 success
+2014-06-24 15:33:56.998 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success
+2014-06-24 15:33:57.023 [main] INFO  com.meidusa.venus.io.authenticate.Authenticator - authenticated by server=10.32.140.83:16800 success

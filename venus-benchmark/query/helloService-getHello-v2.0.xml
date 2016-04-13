@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<venus-becnmark protocol="0" serializeType="1">
+	<!-- 
+		Modify the following two properties
+		
+		apiName: the Service endpoint
+		params : json format parameters 
+	  -->
+	<service name="HelloService" version="0">
+		<endpoint name="getHello">
+			<params>
+			{
+				name:"jack"
+			}
+			</params>
+		</endpoint>
+	</service>
+	
+</venus-becnmark>

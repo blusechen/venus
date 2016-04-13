@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>$serviceName 閺堝秴濮熺拠瀛樻</title>
+		<style type="text/css">	
+		    #service {
+				color:blue;
+				font-weight:bold;
+				font-size:28px;
+			}
+			#interfaceName {
+				color:blue;
+				font-weight:bold;
+				font-size:18px;
+			}
+			#paramdesc {
+				color:blue;
+				font-weight:bold;
+				font-size:18px;
+			}
+			#returnValue {
+				color:blue;
+				font-weight:bold;
+				font-size:18px;
+			}
+        </style>
+	</head>
+	<body>
+		<div id="service">
+			<span>閺堝秴濮熼崥锟�/span>
+			<span id="serviceName">$serviceName</span>
+		</div>
+		<hr/>
+                #foreach ( $method in $methods )
+		<div id="interface">
+
+			<div id="interfaceName">
+				<span>閹恒儱褰涢崥锟�/span>
+				<span>$method.InterfaceName</span>
+			</div>
+			<hr/>
+			<div id="interfaceProp">
+				<span>閹恒儱褰涚仦鐐达拷 </span>
+				<br/>
+				<span>鐠嬪啰鏁ら弬鐟扮础 : </span>
+				<span>$method.InvokeStyle</span>
+				<div id="desc">
+					<span>閹恒儱褰涚拠瀛樻 : </span>
+					<span>$method.Desc</span>
+				</div>
+			</div>
+			<hr/>
+			<div id="param">
+				<span id="paramdesc">閸欏倹鏆熺拠瀛樻</span>
+				<hr/>
+			
+                                                #foreach( $pa in $method.params )
+						<div>
+                                                        
+							<div>
+								<span>閸欏倹鏆熼崥锟� </span>
+								<span>$pa.Name</span>
+							</div>
+
+                                                        <div>
+								<span>閸欏倹鏆熼幓蹇氬牚 : </span>
+								<span>$pa.ParamComent</span>
+							</div>
+                                                        
+							<div>
+								<span>閸欏倹鏆熺猾璇茬� : </span>
+								<span>$pa.Type</span>
+							</div>
+							<div>
+								<span>韫囧懎锝�: </span>
+								<span>$pa.Optional</span>
+							</div>
+							<div>
+								<span>姒涙顓婚崐锟� </span>
+								<span>$pa.DefaultValue</span>
+							</div>
+						</div>
+				                <hr/>
+                                                #end
+				
+			</div>
+			<div id="return">
+				<span id="returnValue">鏉╂柨娲栭崐锟�span>
+                        <hr/>
+				<div>
+					<span>鏉╂柨娲栭崐鑲╄閸拷: </span>
+					<span>$method.returnType</span>
+				</div>
+			</div>
+		</div>
+		<hr/>
+                #end
+	</body>
+</html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE validators SYSTEM "venus-validator-1.0.0.dtd">
+<validators>
+	<field name="id">
+		<field-validator type="long">
+			<property name="min">1</property>
+			<property name="max">10000</property>
+			<property name="message">id must be between 1 and 10000 not ${id}</property>
+		</field-validator>
+	</field>
+	<field name="username">
+		<field-validator type="stringnotempty">
+			<property name="message">username is needed</property>
+		</field-validator>
+		<field-validator type="stringlength">
+			<property name="maxLength">15</property>
+			<property name="minLength">1</property>
+			<property name="message">username %{username} is too long </property>
+		</field-validator>
+	</field>
+</validators>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE validators SYSTEM "venus-validator-1.0.0.dtd">
+<validators>
+	<field name="stringValue">
+		<field-validator type="stringlength">
+		<property name="minLength">10</property>
+		<property name="maxLength">20</property>
+		</field-validator>
+	</field>
+</validators>

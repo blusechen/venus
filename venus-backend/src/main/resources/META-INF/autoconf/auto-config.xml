@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="GB2312"?>
+<config>        
+    <group name="venus Server side Config" description="venus Server side Config">
+        <property name="venus.server.binding.port" defaultValue="16800" description="venus server port"/>
+        <property name="venus.server.handler.executor.maxThread" defaultValue="64" description="venus execution thread size"/>
+        <property name="venus.server.handler.executor.protected" defaultValue="false" description="venus service overload protected"/>
+        <property name="venus.server.handler.executor.enabled" defaultValue="true" description="enable venus handler executor "/>
+        <property name="venus.server.handler.executor.useThreadLocalExecutor" defaultValue="false" description="use threadlocal executor"/>
+        <property name="venus.server.manager.executor.size" defaultValue="16" description="venus manager executor thread size, -1 with no executor"/>
+     </group>
+     
+     <group name="venus socket buffer" description="venus socket buffer">
+        <property name="venus.socket.sendBufferSize" defaultValue="64" description="socket send buffer size (unit:K)"/>
+        <property name="venus.socket.receiveBufferSize" defaultValue="64" description="socket receive buffer size (unit:K)"/>
+    </group>
+</config>

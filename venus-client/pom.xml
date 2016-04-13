@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>venus</artifactId>
+		<groupId>com.meidusa.venus</groupId>
+		<version>3.2.15</version>
+	</parent>
+	
+	<modelVersion>4.0.0</modelVersion>
+    <artifactId>venus-client</artifactId>
+    <packaging>jar</packaging>
+    <name>${project.artifactId} v${project.version}</name>
+    <dependencies>
+        <dependency>
+        	<groupId>junit</groupId>
+        	<artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>com.meidusa.venus.commons</groupId>
+        	<artifactId>venus-common-base</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>com.meidusa.toolkit.net</groupId>
+        	<artifactId>toolkit-net-nio</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>com.meidusa.venus.commons</groupId>
+        	<artifactId>venus-common-io</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>com.meidusa.venus.commons</groupId>
+        	<artifactId>venus-common-exception</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

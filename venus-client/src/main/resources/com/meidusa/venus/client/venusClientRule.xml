@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<digester-rules>
+	<pattern value="*/property">
+		<pattern value="bean">
+			<object-create-rule-with-init attrname="class"/>
+			<set-properties-rule />
+			<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+		</pattern>
+
+	</pattern>
+	<pattern value="venus-client">
+		<object-create-rule-with-init classname="com.meidusa.venus.client.xml.bean.VenusClient" attrname="class"/>
+		<set-properties-rule />
+		<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+		
+		<pattern value="services/service">
+			<object-create-rule-with-init classname="com.meidusa.venus.client.xml.bean.ServiceConfig"/>
+			<set-properties-rule />
+			<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+			<pattern value="instance">
+				<object-create-rule-with-init attrname="class"/>
+				<set-properties-rule />
+				<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+				<set-next-rule methodname="setInstance"/>
+			</pattern>
+			<set-next-rule methodname="addService"/>
+			
+			<pattern value="endpoint">
+				<object-create-rule-with-init
+					classname="com.meidusa.venus.client.xml.bean.EndpointConfig" />
+				<set-properties-rule />
+				<bean-property-setter-byAttrname-rule pattern="property" attrname="name" />
+				<set-next-rule methodname="addEndPointConfig" />
+			</pattern>
+		</pattern>
+		
+		<pattern value="remotes/remote">
+			<object-create-rule-with-init classname="com.meidusa.venus.client.xml.bean.Remote"/>
+			<set-properties-rule />
+			<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+			<pattern value="factory">
+				<object-create-rule-with-init classname="com.meidusa.venus.client.xml.bean.FactoryConfig"/>
+				<set-properties-rule />
+				<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+				<set-next-rule methodname="setFactory"/>
+			</pattern>
+			<pattern value="pool">
+				<object-create-rule-with-init classname="com.meidusa.venus.client.xml.bean.PoolConfig"/>
+				<set-properties-rule />
+				<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+				<set-next-rule methodname="setPool"/>
+			</pattern>
+			<pattern value="authenticator">
+				<object-create-rule-with-init attrname="class"/>
+				<set-properties-rule />
+				<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/>
+				<set-next-rule methodname="setAuthenticator"/>
+			</pattern>
+			<set-next-rule methodname="addRemote"/>
+		</pattern>
+		
+	</pattern>
+	
+</digester-rules> 

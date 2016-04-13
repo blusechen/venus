@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE validators SYSTEM "venus-validator-1.0.0.dtd">
+<validators>
+	<field name="account">
+		<field-validator type="fieldexpression">
+			<property name="expression"><![CDATA[ id < 10000 && city!="heaven"  ]]></property>
+		</field-validator>
+	</field>
+</validators>

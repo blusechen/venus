@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties version="1.0">
+	<entry key="protocolVersion">0</entry>
+	<entry key="serviceVersion">1</entry>
+	
+	<!-- 
+		Modify the following two properties
+		
+		apiName: the Service endpoint
+		params : json format parameters 
+	  -->
+	  
+	<entry key="apiName">HelloService.getHello</entry>
+	<entry key="params">
+		{
+			name:"jack"
+		}
+	</entry>
+</properties>

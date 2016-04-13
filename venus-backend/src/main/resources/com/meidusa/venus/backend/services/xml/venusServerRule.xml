@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!DOCTYPE digester-rules PUBLIC
+   "-//Jakarta Apache //DTD digester-rules XML V1.0//EN"
+   "digester-rules.dtd">
+<digester-rules>
+	<pattern value="*/property">
+		<pattern value="bean">
+			<object-create-rule-with-init attrname="class" />
+			<set-properties-rule />
+			<bean-property-setter-byAttrname-rule
+				pattern="property" attrname="name" /> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+		</pattern>
+	</pattern>
+
+	<pattern value="venus-server">
+		<object-create-rule-with-init
+			classname="com.meidusa.venus.backend.services.xml.bean.Venus"
+			attrname="class" />
+		<set-properties-rule />
+		<bean-property-setter-byAttrname-rule
+			pattern="property" attrname="name" /> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+		<pattern value="services/service">
+			<object-create-rule-with-init
+				classname="com.meidusa.venus.backend.services.xml.bean.ServiceConfig" />
+			<bean-property-setter-byAttrname-rule
+				pattern="property" attrname="name" /> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+			<set-next-rule methodname="addService" />
+			<set-properties-rule>
+				<alias attr-name="interceptor-stack" prop-name="interceptorStack" />
+			</set-properties-rule>
+			<pattern value="instance">
+				<object-create-rule-with-init attrname="class" />
+				<set-properties-rule />
+				<bean-property-setter-byAttrname-rule
+					pattern="property" attrname="name" /> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+				<set-next-rule methodname="setInstance" />
+			</pattern>
+
+			<pattern value="endpoint">
+				<object-create-rule-with-init
+					classname="com.meidusa.venus.backend.services.xml.bean.EndpointConfig" />
+				<set-properties-rule>
+					<alias attr-name="interceptor-stack" prop-name="interceptorStack" />
+				</set-properties-rule>
+				<bean-property-setter-byAttrname-rule
+					pattern="property" attrname="name" />
+				<set-next-rule methodname="addEndpointConfig" />
+				<pattern value="interceptor-config">
+					<object-create-rule-with-init attrname="class" />
+					<set-properties-rule>
+						<alias attr-name="interceptor-ref" prop-name="intercepterRef" />
+					</set-properties-rule>
+					<bean-property-setter-byAttrname-rule pattern="property" attrname="name"/>
+					<set-next-rule methodname="addInterceptorConfig" />
+				</pattern>
+				<pattern value="performanceLogger">
+					<object-create-rule-with-init classname="com.meidusa.venus.backend.services.xml.bean.PerformanceLogger" />
+					<bean-property-setter-byAttrname-rule pattern="property" attrname="name" />
+					<set-properties-rule />
+					<set-next-rule methodname="setPerformanceLogger" />
+				</pattern>
+			</pattern>
+			<set-properties-rule />
+			<bean-property-setter-byAttrname-rule pattern="property" attrname="name" /> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+		</pattern>
+		<pattern value="interceptors/interceptor">
+			<object-create-rule-with-init
+				classname="com.meidusa.venus.backend.interceptor.InterceptorMapping" />
+			<set-properties-rule />
+			<bean-property-setter-byAttrname-rule
+				pattern="property" attrname="name" /> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+			<set-next-rule methodname="addInterceptor" />
+			<object-create-rule-with-init attrname="class" />
+			<set-next-rule methodname="setInterceptor" />
+			<set-properties-rule />
+			<bean-property-setter-byAttrname-rule
+				pattern="property" attrname="name" /> <!-- 璋冪敤瀵硅薄鐨剆etter鏂规硶 -->
+		</pattern>
+
+		<pattern value="interceptor-stacks/interceptor-stack">
+			<object-create-rule-with-init
+				classname="com.meidusa.venus.backend.services.xml.bean.InterceptorStackConfig" />
+			<set-properties-rule />
+			<pattern value="interceptor-ref">
+				<object-create-rule-with-init
+					classname="com.meidusa.venus.backend.services.xml.bean.InterceptorRef" />
+				<set-properties-rule />
+				<set-next-rule methodname="addInterceptorRef" />
+			</pattern>
+			<set-next-rule methodname="addInterceptorStack" />
+		</pattern>
+
+	</pattern>
+
+
+</digester-rules> 

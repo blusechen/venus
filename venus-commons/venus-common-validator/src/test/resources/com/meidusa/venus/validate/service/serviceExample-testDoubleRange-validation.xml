@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE validators SYSTEM "venus-validator-1.0.0.dtd">
+<validators>
+	<field name="doubleValue">
+		<field-validator type="double">
+			<property name="minInclusive">1.00</property>
+			<property name="maxInclusive">1.360</property>
+		</field-validator>
+	</field>
+</validators>

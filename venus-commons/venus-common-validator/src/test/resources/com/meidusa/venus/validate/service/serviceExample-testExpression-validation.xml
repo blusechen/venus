@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE validators SYSTEM "venus-validator-1.0.0.dtd">
+<validators>
+	<validator type="expression">
+	<property name="expression"><![CDATA[ val1 > 0 && val2[1] > 1 && val3=="abc" ]]></property>
+	</validator>
+</validators>

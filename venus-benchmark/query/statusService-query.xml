@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties version="1.0">
+	<entry key="protocolVersion">0</entry>
+	<entry key="serviceVersion">1</entry>
+	
+	<!-- 
+		Modify the following two properties
+		
+		apiName: the Service endpoint
+		params : json format parameters 
+	  -->
+	  
+	<entry key="apiName">StatusService.queryItemStatus</entry>
+	<entry key="params">
+		{
+			query:{"bareJID":"xmpp1111test@min.snda","hashCode":25392791,"header":{"flag":0,"length":1000,"messageId":"d6a3ee89-1951-488f-889c-16c1b2de3904","type":17,"version":1},"resource":"venus"}
+		}
+	</entry>
+</properties>

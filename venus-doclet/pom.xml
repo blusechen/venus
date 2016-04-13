@@ -1,0 +1,103 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>venus</artifactId>
+        <groupId>com.meidusa.venus</groupId>
+        <version>3.2.14</version>
+    </parent>
+
+	<groupId>com.meidusa.venus.doclet</groupId>
+	<artifactId>venus-doclet</artifactId>
+	<packaging>maven-plugin</packaging>
+
+	<name>venus-doclet</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-dependency-analyzer</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-dependency-tree</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.6.4</version>
+		</dependency>
+		<dependency>
+			<groupId>javassist</groupId>
+			<artifactId>javassist</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>3.3.1</version>
+		</dependency>
+
+        <dependency>
+			<groupId>com.meidusa.venus.commons</groupId>
+			<artifactId>venus-common-base</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>3.1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-common-artifact-filters</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-model</artifactId>
+			<version>3.0.3</version>
+		</dependency>
+	</dependencies>
+  <build>
+     <plugins>
+       <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+              <encoding>${project.build.sourceEncoding}</encoding>
+              <source>1.5</source>
+              <target>1.5</target>
+          </configuration>
+      </plugin>
+     </plugins>
+  </build>
+    <distributionManagement>
+        <repository>
+            <id>release-open</id>
+            <name>Internal Releases</name>
+            <url>http://maven.hexnova.com/nexus/content/repositories/release-open</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshot-open</id>
+            <name>Internal snapshots</name>
+            <url>http://maven.hexnova.com/nexus/content/repositories/snapshot-open</url>
+        </snapshotRepository>
+    </distributionManagement>
+</project>

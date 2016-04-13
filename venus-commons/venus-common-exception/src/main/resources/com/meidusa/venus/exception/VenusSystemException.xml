@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<exceptions>
+		
+	<exception errorCode="18004011" type="com.meidusa.venus.exception.AuthenticateException">
+		<message></message>
+	</exception>
+	
+	<exception errorCode="18004000" type="com.meidusa.venus.exception.InvalidRequestException">
+        <message></message>
+    </exception>
+    
+	<exception errorCode="18005001" type="com.meidusa.venus.exception.RemoteWaitForExecutTimeoutException">
+        <message></message>
+    </exception>
+    
+	<exception errorCode="18005003" type="com.meidusa.venus.exception.ServiceNotFoundException">
+		<message></message>
+	</exception>
+
+	<exception errorCode="18005006" type="com.meidusa.venus.exception.ServiceInactiveException">
+		<message></message>
+	</exception>
+
+	<exception errorCode="18005007" type="com.meidusa.venus.exception.ServiceVersionNotAllowException">
+		<message></message>
+	</exception>
+
+	<exception errorCode="18005008" type="com.meidusa.venus.exception.ServiceNotCallbackException">
+		<message></message>
+	</exception>
+	
+	
+	<exception errorCode="18006007" type="com.meidusa.venus.exception.SystemParameterRequiredException">
+		<message></message>
+	</exception>
+	
+	<exception errorCode="18006006" type="com.meidusa.venus.exception.InvalidParameterException">
+		<message></message>
+	</exception>
+	
+	<exception errorCode="18009001" type="com.meidusa.venus.exception.VenusConfigException">
+		<message></message>
+	</exception>
+	
+	<exception errorCode="18008001" type="com.meidusa.venus.exception.RemoteDataAccessLayerException">
+        <message></message>
+    </exception>
+	
+	 <exception errorCode="18008002" type="com.meidusa.venus.exception.RemoteDataAccessLayerSQLException">
+        <message></message>
+    </exception>
+</exceptions>

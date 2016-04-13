@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>venus-extension</artifactId>
+    <groupId>com.meidusa.venus.extension</groupId>
+    <version>3.2.15</version>
+  </parent>
+  <artifactId>venus-extension-xmpp</artifactId>
+  <name>${project.artifactId} v${project.version}</name>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.igniterealtime</groupId>
+  		<artifactId>tinder</artifactId>
+  		<version>1.2.3</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.meidusa.venus.commons</groupId>
+  		<artifactId>venus-common-io</artifactId>
+  	</dependency>
+  	<dependency>
+  		<groupId>xpp3</groupId>
+  		<artifactId>xpp3</artifactId>
+  		<version>1.1.4c</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.ini4j</groupId>
+   	 	<artifactId>ini4j</artifactId>
+  	</dependency>
+  </dependencies>
+</project>

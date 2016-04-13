@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Venus Validators DTD.
+  Used the following DOCTYPE.
+
+  <!DOCTYPE validators SYSTEM "venus-validator-1.0.0.dtd">
+-->
+
+
+<!ELEMENT validators (field|validator)+>
+
+<!ELEMENT field (field-validator+)>
+<!ATTLIST field
+	name CDATA #REQUIRED
+>
+
+<!ELEMENT field-validator (param*)>
+<!ATTLIST field-validator
+	type CDATA #REQUIRED
+    short-circuit (true|false) "false"
+>
+
+<!ELEMENT validator (param*)>
+<!ATTLIST validator
+	type CDATA #REQUIRED
+    short-circuit (true|false) "false"
+>
+
+<!ELEMENT param (#PCDATA)>
+<!ATTLIST param
+    name CDATA #REQUIRED
+>
+
+
