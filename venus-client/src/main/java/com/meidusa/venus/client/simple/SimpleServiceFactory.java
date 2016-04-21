@@ -118,7 +118,7 @@ public class SimpleServiceFactory implements ServiceFactory {
         	this.authenticator = new DummyAuthenticator<DummyAuthenPacket>();
         }
         
-        invocationHandler.setSerializeType(getAuthenticator().getSerializeType());
+        invocationHandler.setAuthenticator(getAuthenticator());
 
         T object = (T) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] { t }, invocationHandler);
 
