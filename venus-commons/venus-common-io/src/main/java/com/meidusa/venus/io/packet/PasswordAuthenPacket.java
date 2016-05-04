@@ -26,7 +26,8 @@ public class PasswordAuthenPacket extends DummyAuthenPacket {
     protected void writeBody(ServicePacketBuffer buffer) throws UnsupportedEncodingException {
         super.writeBody(buffer);
         encryptedPasswd = encryptPasswd(password, challenge);
-        username = buffer.readLengthCodedString(PACKET_CHARSET);
+        //it was a bug, username write twice 
+        buffer.writeLengthCodedString(username,PACKET_CHARSET);
         buffer.writeLengthCodedBytes(encryptedPasswd);
 
     }
@@ -34,6 +35,7 @@ public class PasswordAuthenPacket extends DummyAuthenPacket {
     @Override
     protected void readBody(ServicePacketBuffer buffer) {
         super.readBody(buffer);
+        //it was a bug, username write twice 
         username = buffer.readLengthCodedString(PACKET_CHARSET);
         this.encryptedPasswd = buffer.readLengthCodedBytes();
     }
