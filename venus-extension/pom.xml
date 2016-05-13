@@ -4,7 +4,7 @@
     <artifactId>venus</artifactId>
     <groupId>com.meidusa.venus</groupId>
     <relativePath>..</relativePath>
-    <version>3.2.15</version>
+    <version>3.2.16-SNAPSHOT</version>
   </parent>
   
   <groupId>com.meidusa.venus.extension</groupId>
