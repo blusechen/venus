@@ -1,9 +1,11 @@
 Venus 是什么？
+
 它是由(Venus service framework)+服务路由产品（Venus-Bus）+服务注册中心(Venus-Registry) 组合而成，提供远程服务。它着 开发简单、高性能、高并发能力 的服务端框架。
 
 客户端与服务端之间的通讯对开发人员完全透明
 
 他跟目前我们经常用到的框架：axis、CXF、Hessian WebService、Jboss Remoting等框架类似。
+
 
 系统功能目标：
 
