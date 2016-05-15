@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.meidusa.venus.extension.monitor.MonitorExtensionResolver;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -82,6 +83,8 @@ public class XmlFileServiceManager extends AbstractServiceManager implements Ini
 
     @Override
     public void afterPropertiesSet() throws Exception {
+
+        MonitorExtensionResolver.resolver();
 
         beanContext = new BeanContext() {
             public Object getBean(String beanName) {

@@ -25,6 +25,10 @@
 			<artifactId>venus-common-base</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.meidusa.venus.extension</groupId>
+			<artifactId>venus-extension-monitor</artifactId>
+        </dependency>
+		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>
