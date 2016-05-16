@@ -46,7 +46,6 @@ import java.util.concurrent.Executors;
 public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontendConnection, Tuple<Long, byte[]>>, Initialisable {
     private static SerializerFeature[] JSON_FEATURE = new SerializerFeature[]{SerializerFeature.ShortString};
 
-    static Map<Class<?>, Integer> codeMap = CodeMapScanner.getCodeMap();
     private static Logger logger = LoggerFactory.getLogger(ServiceInvokeMessageHandler.class);
 
     private int maxExecutionThread;
@@ -181,7 +180,7 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
                 try {
                     ServicePacketBuffer packetBuffer = new ServicePacketBuffer(message);
                     apiPacket.init(packetBuffer);
-                    VenusMonitorDelegate.getInstance().reportMetric(apiPacket.apiName + ".invoke", MonitorConstants.metricCount);
+                    VenusMonitorDelegate.getInstance().reportMetric(VenusMonitorDelegate.getInvokeKey(apiPacket.apiName), MonitorConstants.metricCount);
                     ep = getServiceManager().getEndpoint(apiPacket.apiName);
                     Serializer serializer = SerializerFactory.getSerializer(packetSerializeType);
                     request = new SerializeServiceRequestPacket(serializer, ep.getParameterTypeDict());
@@ -189,7 +188,7 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
                     request.init(packetBuffer);
                     VenusTracerUtil.logReceive(request.traceId, request.apiName, JSON.toJSONString(request.parameterMap, JSON_FEATURE));
                 } catch (Exception e) {
-                    VenusMonitorDelegate.getInstance().reportMetric(apiPacket.apiName + ".parse.error", MonitorConstants.metricCount);
+                    VenusMonitorDelegate.getInstance().reportMetric(VenusMonitorDelegate.getParseErrorKey(apiPacket.apiName), MonitorConstants.metricCount);
                     VenusMonitorDelegate.getInstance().reportError("解析request请求异常", e);
                     ErrorPacket error = ExceptionHandler.getErrorPacket(e, apiPacket);
                     if (filter != null) {
@@ -256,10 +255,11 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
 
                 __TIMEOUT:
                 {
-                    VenusMonitorDelegate.getInstance().reportMetric(request.apiName + ".timeout", MonitorConstants.metricCount);
+
                     if (errorPacket != null) {
                         if (resultType == ResultType.NOTIFY) {
                             if (isTimeout) {
+                                VenusMonitorDelegate.getInstance().reportMetric(VenusMonitorDelegate.getQueueTimeoutKey(request.apiName), MonitorConstants.metricCount);
                                 break __TIMEOUT;
                             }
                             if (invocationListener != null) {
@@ -268,6 +268,7 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
                                 responseHandler.postMessageBack(conn, routerPacket, request, errorPacket);
                             }
                         } else {
+                            VenusMonitorDelegate.getInstance().reportMetric(VenusMonitorDelegate.getQueueTimeoutKey(request.apiName), MonitorConstants.metricCount);
                             responseHandler.postMessageBack(conn, routerPacket, request, errorPacket);
                         }
                         if (filter != null) {

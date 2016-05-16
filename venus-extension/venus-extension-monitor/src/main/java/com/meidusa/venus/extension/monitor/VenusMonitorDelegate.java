@@ -36,4 +36,22 @@ public class VenusMonitorDelegate {
         }
     }
 
+    public static String getParseErrorKey(String apiName) {
+        return apiName + ".parse.error";
+    }
+
+    public static String getQueueTimeoutKey(String apiName) {
+        return apiName + ".queue.timeout";
+    }
+
+    public static String getExecuteTimeoutKey(String apiName){
+        return apiName + ".execute.timeout";
+    }
+
+    public static String getInvokeKey(String apiName) {
+        return apiName +".invoke";
+    }
+
+
+
 }

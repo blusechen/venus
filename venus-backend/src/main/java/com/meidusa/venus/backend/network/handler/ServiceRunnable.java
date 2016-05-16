@@ -1,9 +1,6 @@
 package com.meidusa.venus.backend.network.handler;
 
-import com.meidusa.fastjson.JSON;
-import com.meidusa.fastmark.feature.SerializerFeature;
 import com.meidusa.toolkit.common.util.Tuple;
-import com.meidusa.toolkit.net.Connection;
 import com.meidusa.toolkit.net.util.InetAddressUtil;
 import com.meidusa.toolkit.util.TimeUtil;
 import com.meidusa.venus.backend.DefaultEndpointInvocation;
@@ -14,8 +11,8 @@ import com.meidusa.venus.backend.context.RequestContext;
 import com.meidusa.venus.backend.profiling.UtilTimerStack;
 import com.meidusa.venus.backend.services.Endpoint;
 import com.meidusa.venus.backend.services.Service;
-import com.meidusa.venus.backend.services.xml.bean.PerformanceLogger;
 import com.meidusa.venus.exception.*;
+import com.meidusa.venus.extension.monitor.MonitorConstants;
 import com.meidusa.venus.extension.monitor.VenusMonitorDelegate;
 import com.meidusa.venus.io.ServiceFilter;
 import com.meidusa.venus.io.network.VenusFrontendConnection;
@@ -25,7 +22,10 @@ import com.meidusa.venus.io.packet.serialize.SerializeServiceResponsePacket;
 import com.meidusa.venus.io.serializer.Serializer;
 import com.meidusa.venus.io.serializer.SerializerFactory;
 import com.meidusa.venus.service.monitor.MonitorRuntime;
-import com.meidusa.venus.util.*;
+import com.meidusa.venus.util.ThreadLocalConstant;
+import com.meidusa.venus.util.ThreadLocalMap;
+import com.meidusa.venus.util.Utils;
+import com.meidusa.venus.util.VenusTracerUtil;
 import com.meidusa.venus.util.concurrent.MultiQueueRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,9 +207,11 @@ public class ServiceRunnable extends MultiQueueRunnable {
             return;
         } finally {
             long endRunTime = TimeUtil.currentTimeMillis();
-
             long queuedTime = startRunTime - data.left;
             long executeTime = endRunTime - startRunTime;
+            if (endpoint.getTimeWait() > ((queuedTime + executeTime)/1000)) {
+                VenusMonitorDelegate.getInstance().reportMetric(VenusMonitorDelegate.getExecuteTimeoutKey(request.apiName), MonitorConstants.metricCount);
+            }
             MonitorRuntime.getInstance().calculateAverage(endpoint.getService().getName(), endpoint.getName(), executeTime, false);
             PerformanceHandler.logPerformance(endpoint, request, queuedTime, executeTime, conn.getHost(), sourceIp, result);
             if (filter != null) {
@@ -228,13 +230,10 @@ public class ServiceRunnable extends MultiQueueRunnable {
 
 
     private Response handleRequest(RequestContext context, Endpoint endpoint) {
-
         Response response = new Response();
-
         DefaultEndpointInvocation invocation = new DefaultEndpointInvocation(context, endpoint);
-
         try {
-            //UtilTimerStack.push(ENDPOINT_INVOKED_TIME);
+            UtilTimerStack.push(ENDPOINT_INVOKED_TIME);
             response.setResult(invocation.invoke());
         } catch (Throwable e) {
             VenusMonitorDelegate.getInstance().reportError(e.getMessage(), e);
