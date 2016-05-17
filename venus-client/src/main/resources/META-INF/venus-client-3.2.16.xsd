@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="http://hexnova.io/schema/venus-client"
+            xmlns:beans="http://www.springframework.org/schema/beans"
+            xmlns:tool="http://www.springframework.org/schema/tool"
+            targetNamespace="http://hexnova.io/schema/venus-client"
+            elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans"
+                schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"/>
+    <xsd:import namespace="http://www.springframework.org/schema/tool"
+                schemaLocation="http://www.springframework.org/schema/tool/spring-tool-3.0.xsd"/>
+
+    <xsd:element name="registry">
+        <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:string" use="required"/>
+            <xsd:attribute name="remoteIpAddressList" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="services">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="service" maxOccurs="unbounded">
+                    <xsd:complexType>
+                        <xsd:attribute name="interface" type="xsd:string" use="required"/>
+                        <xsd:attribute name="override" type="xsd:boolean" use="optional"/>
+                        <xsd:attribute name="remoteIpAddress" type="xsd:string" use="optional"/>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="ref-registry" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+
+</xsd:schema>
