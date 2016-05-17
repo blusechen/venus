@@ -308,7 +308,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>2.3.2</version>
+					<version>3.5.1</version>
 					<configuration>
 						<encoding>${project.build.sourceEncoding}</encoding>
 						<source>1.6</source>
@@ -318,10 +318,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.7</version>
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
@@ -353,6 +355,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -364,6 +367,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5.1</version>
 				<configuration>
 					<encoding>${project.build.sourceEncoding}</encoding>
 					<source>1.6</source>
@@ -373,22 +377,23 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.7</version>
 				<configuration>
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
+
 	<distributionManagement>
-        <repository>
-            <id>hexnova-releases</id>
-            <name>Internal Releases</name>
-            <url>http://maven.hexnova.com/nexus/content/repositories/release-open</url>
-        </repository>
+		<repository>
+			<id>framework_releases</id>
+			<url>http://maven.dds.com/nexus/content/repositories/saic_framework/</url>
+		</repository>
 		<snapshotRepository>
-			<id>saic-release</id>
-			<name>Internal snapshots</name>
-			<url>http://maven.dds.com/nexus/content/repositories/snapshot-open</url>
+			<id>framework_snapshot</id>
+			<url>http://maven.dds.com/nexus/content/repositories/saic_framework_snapshot/</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<repositories>
