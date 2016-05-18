@@ -1,7 +1,7 @@
 package com.meidusa.venus.client.spring;
 
 import com.meidusa.venus.client.nio.RegistryManager;
-import com.meidusa.venus.client.nio.RegistryServer;
+import com.meidusa.venus.client.nio.config.RemoteServer;
 import com.meidusa.venus.client.spring.exception.*;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -20,8 +20,8 @@ public class RegistryBeanDefinitionParser implements BeanDefinitionParser {
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
 
-        String id = element.getAttribute("id");
-        String remoteIpAddressList = element.getAttribute("remoteIpAddressList");
+        String id = element.getAttribute(NodeConstants.ATTRIBUTE_REGISTRY_ID_NAME);
+        String remoteIpAddressList = element.getAttribute(NodeConstants.ATTRIBUTE_REGISTRY_ADDRESS_LIST_NAME);
 
         if (!StringUtils.hasLength(id)) {
             throw new VenusRegistryIdNotEmptyException();
@@ -37,7 +37,7 @@ public class RegistryBeanDefinitionParser implements BeanDefinitionParser {
             throw new VenusRegistryRemoteIpAddressNotEmptyExcepiton();
         }
 
-        List<RegistryServer> registryServers = new ArrayList<RegistryServer>();
+        List<RemoteServer> registryServers = new ArrayList<RemoteServer>();
         for (String registryRemoteIpAddress : registryRemoteIpAddressArray) {
             String[] array = StringUtils.split(registryRemoteIpAddress, ":");
             if (array == null || array.length != 2) {
@@ -52,7 +52,7 @@ public class RegistryBeanDefinitionParser implements BeanDefinitionParser {
                 throw new VenusRegistryServerPortMalformationException();
             }
 
-            RegistryServer server = new RegistryServer();
+            RemoteServer server = new RemoteServer();
             server.setHostname(hostname);
             server.setPort(port);
 

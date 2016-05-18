@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns="http://hexnova.io/schema/venus-client"
-            xmlns:beans="http://www.springframework.org/schema/beans"
-            xmlns:tool="http://www.springframework.org/schema/tool"
             targetNamespace="http://hexnova.io/schema/venus-client"
             elementFormDefault="qualified" attributeFormDefault="unqualified">
 
@@ -14,7 +12,7 @@
     <xsd:element name="registry">
         <xsd:complexType>
             <xsd:attribute name="id" type="xsd:string" use="required"/>
-            <xsd:attribute name="remoteIpAddressList" type="xsd:string" use="required"/>
+            <xsd:attribute name="addressList" type="xsd:string" use="required"/>
         </xsd:complexType>
     </xsd:element>
 
@@ -24,12 +22,20 @@
                 <xsd:element name="service" maxOccurs="unbounded">
                     <xsd:complexType>
                         <xsd:attribute name="interface" type="xsd:string" use="required"/>
-                        <xsd:attribute name="override" type="xsd:boolean" use="optional"/>
-                        <xsd:attribute name="remoteIpAddress" type="xsd:string" use="optional"/>
+                        <xsd:attribute name="overrideIp" type="xsd:boolean" use="optional"/>
+                        <xsd:attribute name="addressList" type="xsd:string" use="optional"/>
+                        <xsd:attribute name="maxActive" type="xsd:int" use="optional" default="20"/>
+                        <xsd:attribute name="maxIdle" type="xsd:int" use="optional" default="20"/>
+                        <xsd:attribute name="minIdle" type="xsd:int" use="optional" default="10"/>
+                        <xsd:attribute name="minEvictableIdleTimeMillis" type="xsd:int" use="optional" default="60000"/>
+                        <xsd:attribute name="timeBetweenEvictionRunsMillis" type="xsd:int" use="optional" default="60000"/>
+                        <xsd:attribute name="testOnBorrow" type="xsd:boolean" use="optional" default="true"/>
+                        <xsd:attribute name="testWhileIdle" type="xsd:boolean" use="optional" default="true"/>
                     </xsd:complexType>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="ref-registry" type="xsd:string" use="required"/>
+            <xsd:attribute name="id" type="xsd:string" use="required"/>
+            <xsd:attribute name="ref-registry-id" type="xsd:string" use="required"/>
         </xsd:complexType>
     </xsd:element>
 

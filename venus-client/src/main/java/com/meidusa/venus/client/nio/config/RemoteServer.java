@@ -1,9 +1,9 @@
-package com.meidusa.venus.client.nio;
+package com.meidusa.venus.client.nio.config;
 
 /**
  * Created by huawei on 5/17/16.
  */
-public class RegistryServer {
+public class RemoteServer {
 
     private String hostname;
     private int port;

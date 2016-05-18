@@ -9,8 +9,8 @@ public class VenusClientNamespaceHandler extends NamespaceHandlerSupport {
     @Override
     public void init() {
 
-        registerBeanDefinitionParser("registry", new RegistryBeanDefinitionParser());
-        registerBeanDefinitionParser("services", new ServiceBeanDefinitionParser());
+        registerBeanDefinitionParser(NodeConstants.ELEMENT_REGISTRY_NAME, new RegistryBeanDefinitionParser());
+        registerBeanDefinitionParser(NodeConstants.ELEMENT_SERVICES_NAME, new ServiceBeanDefinitionParser());
 
     }
 }

@@ -1,102 +1,39 @@
 package com.meidusa.venus.client.nio;
 
-import com.meidusa.toolkit.common.poolable.MultipleLoadBalanceObjectPool;
-import com.meidusa.toolkit.net.BackendConnectionPool;
-import com.meidusa.toolkit.net.MultipleLoadBalanceBackendConnectionPool;
-import com.meidusa.toolkit.net.PollingBackendConnectionPool;
-import com.meidusa.venus.annotations.Endpoint;
-import com.meidusa.venus.annotations.Service;
-import com.meidusa.venus.client.RemoteContainer;
-import com.meidusa.venus.client.VenusInvocationHandler;
-import com.meidusa.venus.io.network.VenusBackendConnectionFactory;
-import com.meidusa.venus.metainfo.EndpointParameter;
+import com.meidusa.toolkit.common.runtime.GlobalScheduler;
+import com.meidusa.venus.client.nio.config.ServiceConfig;
+import com.meidusa.venus.exception.DefaultVenusException;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.Executors;
-import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by huawei on 5/17/16.
  */
 public class ServiceManager implements BeanFactoryPostProcessor {
 
-    private List<Class<?>> serviceClassNameList;
+    private String refRegistryId;
+    private List<ServiceConfig> serviceConfigList;
 
-    private String refRegistryManagerName;
+    public ScheduledExecutorService executors;
 
-    private RegistryManager registryManager;
+    private Map<Class<?>, Object> servicesMap = new HashMap<Class<?>, Object>();
 
-    class NioServiceInvocationHandler extends VenusInvocationHandler implements Runnable {
-
-        private ScheduledExecutorService executorService;
-        private RegistryManager registryManager;
-        private String serviceName;
-
-        private List<String> currentRemoteServiceIpList;
-
-        RemoteContainer container = new RemoteContainer();
-
-        private BackendConnectionPool pool;
-
-        public NioServiceInvocationHandler(ScheduledExecutorService executorService, RegistryManager registryManager, String serviceName) {
-            Assert.notNull(executorService, "");
-            Assert.notNull(registryManager, "");
-            Assert.hasLength(serviceName, "");
-            this.executorService = executorService;
-            this.executorService.scheduleAtFixedRate(this, 1000L, 1, TimeUnit.MINUTES);
-        }
-
-        public NioServiceInvocationHandler init() {
-            List<String> remoteServiceIpList = registryManager.getRemote(serviceName);
-            int size = remoteServiceIpList.size();
-
-            createNioPool(remoteServiceIpList);
-
-            return this;
-        }
-
-        private void createNioPool(List<String> remoteServiceIpList) {
-            int size = remoteServiceIpList.size();
-            if (size > 1) {
-
-            }else {
-
-            }
-        }
-
-        private void reCreateNioPool(List<String> remoteServiceIpList) {
-            createNioPool(remoteServiceIpList);
-        }
-
-        @Override
-        protected Object invokeRemoteService(Service service, Endpoint endpoint, Method method, EndpointParameter[] params, Object[] args) throws Exception {
-            return null;
-        }
-
-        @Override
-        public void run() {
-
-            try{
-                List<String> remoteServiceIpList = registryManager.getRemote(serviceName);
-
-                if (remoteServiceIpList.equals(currentRemoteServiceIpList)) {
-                    //build new connection pool
-                    reCreateNioPool(remoteServiceIpList);
-                }
-            }catch (Exception e) {
-
-            }
+    @PostConstruct
+    public void init(){
+        if (serviceConfigList != null && serviceConfigList.size() >0) {
+            executors = Executors.newScheduledThreadPool(serviceConfigList.size());
+        }else {
+            executors = Executors.newScheduledThreadPool(10);
         }
     }
 
@@ -105,22 +42,50 @@ public class ServiceManager implements BeanFactoryPostProcessor {
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        System.out.println("post");
-        registryManager = beanFactory.getBean(refRegistryManagerName, RegistryManager.class);
-        int size = serviceClassNameList.size();
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(size);
+        RegistryManager rm;
 
-        for(int i = 0;i < size; i++) {
-            Object serviceInstance = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{serviceClassNameList.get(i)}, new InvocationHandler() {
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                    return null;
-                }
-            });
-
-            beanFactory.registerSingleton("", serviceInstance);
+        try{
+            rm = beanFactory.getBean(refRegistryId, RegistryManager.class);
+        }catch (Exception e) {
+            throw new NoSuchBeanDefinitionException("get " + refRegistryId + " bean error, check venus:registry configuration or has multiple id are same");
         }
 
+        if (rm == null) {
+            throw new DefaultVenusException(0, "注册中心管理器不能为空");
+        }
 
+        if (serviceConfigList == null) {
+            return;
+        }
+
+        for(ServiceConfig config : serviceConfigList) {
+            NioServiceInvocationHandler handler = new NioServiceInvocationHandler(rm, config).init();
+            Object remoteServiceInstance = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{config.getServiceInterface()}, handler);
+            servicesMap.put(config.getServiceInterface(), remoteServiceInstance);
+        }
+
+    }
+
+    public List<ServiceConfig> getServiceConfigList() {
+        return serviceConfigList;
+    }
+
+    public void setServiceConfigList(List<ServiceConfig> serviceConfigList) {
+        this.serviceConfigList = serviceConfigList;
+    }
+
+    public String getRefRegistryId() {
+        return refRegistryId;
+    }
+
+    public void setRefRegistryId(String refRegistryId) {
+        this.refRegistryId = refRegistryId;
+    }
+
+    public <T> T getService(Class serviceClass) {
+        if (serviceClass == null) {
+            return null;
+        }
+        return (T) servicesMap.get(serviceClass);
     }
 }
