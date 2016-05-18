@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:venus-client="http://hexnova.io/schema/venus-client"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	   http://hexnova.io/schema/venus-client http://hexnova.io/schema/venus-client-3.2.16.xsd"
+	   default-autowire="byName">
+
+	<venus-client:registry id="default" addressList="localhost:16800"/>
+
+	<venus-client:services id="test1" ref-registry-id="default">
+		<venus-client:service interface="com.meidusa.venus.client.ServiceRegistry" />
+	</venus-client:services>
+
+</beans>
