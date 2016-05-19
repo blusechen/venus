@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<included>
+    <appender name="VENUS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${LOG_SYS_HOME}/venus.log.%d{yyyy-MM-dd}</FileNamePattern>
+            <MaxHistory>${LOG_MAX_HISTORY:-30}</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="VENUS-PERFORMANCE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${LOG_SYS_HOME}/venus-performance.log.%d{yyyy-MM-dd}</FileNamePattern>
+            <MaxHistory>${LOG_MAX_HISTORY:-30}</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="VENUS-INVOKE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${LOG_SYS_HOME}/venus-invoke.log.%d{yyyy-MM-dd}</FileNamePattern>
+            <MaxHistory>${LOG_MAX_HISTORY:-30}</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="VENUS-TRACER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${LOG_SYS_HOME}/venus-tracer.log.%d{yyyy-MM-dd}</FileNamePattern>
+            <MaxHistory>${LOG_MAX_HISTORY:-30}</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.meidusa.toolkit.net.ConnectionAcceptor" additivity="false">
+        <level value="${logger.venus.acceptor:-INFO}"/>
+        <appender-ref ref="VENUS"/>
+    </logger>
+    <logger name="com.meidusa.toolkit.net" additivity="false">
+        <level value="${logger.venus.toolkit.net:-INFO}"/>
+        <appender-ref ref="VENUS"/>
+    </logger>
+    <logger name="com.meidusa.venus.heartbeat" additivity="false">
+        <level value="${logger.venus.heartbeat:-INFO}"/>
+        <appender-ref ref="VENUS"/>
+    </logger>
+    <logger name="venus.backend.performance" additivity="false">
+        <level value="${logger.venus.backend.performance:-DEBUG}"/>
+        <appender-ref ref="VENUS-PERFORMANCE"/>
+    </logger>
+
+    <logger name="venus.client.performance" additivity="false">
+        <level value="${logger.venus.client.performance:-DEBUG}"/>
+        <appender-ref ref="VENUS-PERFORMANCE"/>
+    </logger>
+
+    <logger name="venus.service.invoker" additivity="false">
+        <level value="${logger.venus.invoke:-ERROR}"/>
+        <appender-ref ref="VENUS-INVOKE"/>
+    </logger>
+
+    <logger name="venus.report.queue" additivity="false">
+        <level value="${logger.venus.report.queue:-INFO}"/>
+        <appender-ref ref="VENUS"/>
+    </logger>
+
+    <logger name="venus.tracer" additivity="false">
+        <level value="${logger.venus.trace:-DEBUG}"/>
+        <appender-ref ref="VENUS-TRACER"/>
+    </logger>
+</included>
