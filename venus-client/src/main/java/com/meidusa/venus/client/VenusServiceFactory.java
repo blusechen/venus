@@ -90,9 +90,6 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
     private boolean enableAsync = true;
     private boolean shutdown = false;
     private Map<String, Tuple<ObjectPool, BackendConnectionPool>> poolMap = new HashMap<String, Tuple<ObjectPool, BackendConnectionPool>>(); // NOPMD
-                                                                                                                                             // by
-                                                                                                                                             // structchen
-                                                                                                                                             // on
                                                                                                                                              // 13-10-21
                                                                                                                                              // 下午12:25
     private Map<String,Object> realPools = new HashMap<String,Object>();

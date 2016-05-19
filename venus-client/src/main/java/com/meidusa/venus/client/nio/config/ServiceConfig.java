@@ -25,6 +25,11 @@ public class ServiceConfig {
     private String serviceName;
 
     /**
+     * 服务版本
+     */
+    private int version;
+
+    /**
      * 是否覆盖注册中心获取到的远程地址
      **/
     private boolean override = false;
@@ -91,6 +96,14 @@ public class ServiceConfig {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     public boolean isOverride() {

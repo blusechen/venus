@@ -9,7 +9,7 @@
 	<venus-client:registry id="default" addressList="localhost:16800"/>
 
 	<venus-client:services id="test1" ref-registry-id="default">
-		<venus-client:service interface="com.meidusa.venus.client.ServiceRegistry" />
+		<venus-client:service interface="com.meidusa.venus.service.registry.ServiceRegistry" />
 	</venus-client:services>
 
 </beans>

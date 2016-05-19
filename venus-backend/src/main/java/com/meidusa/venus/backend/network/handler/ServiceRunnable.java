@@ -42,7 +42,6 @@ import java.util.Map;
 public class ServiceRunnable extends MultiQueueRunnable {
 
     private static Logger logger = LoggerFactory.getLogger(ServiceRunnable.class);
-    private static Logger performanceLogger = LoggerFactory.getLogger("venus.backend.performance");
     private static Logger INVOKER_LOGGER = LoggerFactory.getLogger("venus.service.invoker");
     private static String ENDPOINT_INVOKED_TIME = "invoked Totle Time: ";
 
@@ -78,9 +77,10 @@ public class ServiceRunnable extends MultiQueueRunnable {
         this.venusExceptionFactory = venusExceptionFactory;
         this.data = data;
         this.apiName = request.apiName;
-        this.sourceIp = conn.getHost();
         if (routerPacket != null) {
-            sourceIp = InetAddressUtil.intToAddress(routerPacket.srcIP);
+            this.sourceIp = InetAddressUtil.intToAddress(routerPacket.srcIP);
+        }else {
+            this.sourceIp = conn.getHost();
         }
     }
 

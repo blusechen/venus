@@ -1,6 +1,9 @@
 package com.meidusa.venus.client.nio;
 
 import com.meidusa.toolkit.common.runtime.GlobalScheduler;
+import com.meidusa.toolkit.net.ConnectionConnector;
+import com.meidusa.toolkit.net.ConnectionManager;
+import com.meidusa.venus.client.VenusNIOMessageHandler;
 import com.meidusa.venus.client.nio.config.ServiceConfig;
 import com.meidusa.venus.exception.DefaultVenusException;
 import org.springframework.beans.BeansException;
@@ -28,13 +31,29 @@ public class ServiceManager implements BeanFactoryPostProcessor {
 
     private Map<Class<?>, Object> servicesMap = new HashMap<Class<?>, Object>();
 
+
+    private ConnectionConnector connector;
+    private ConnectionManager connManager;
+    private VenusNIOMessageHandler messageHandler = new VenusNIOMessageHandler();
+    private int asyncExecutorSize = 10;
+
     @PostConstruct
-    public void init(){
+    public void init() throws Exception{
         if (serviceConfigList != null && serviceConfigList.size() >0) {
             executors = Executors.newScheduledThreadPool(serviceConfigList.size());
         }else {
             executors = Executors.newScheduledThreadPool(10);
         }
+
+        this.connector = new ConnectionConnector("connection Connector");
+        connector.setDaemon(true);
+
+        connManager = new ConnectionManager("Connection Manager", asyncExecutorSize);
+        connManager.setDaemon(true);
+        connManager.start();
+
+        connector.setProcessors(new ConnectionManager[] { connManager });
+        connector.start();
     }
 
 
@@ -59,7 +78,12 @@ public class ServiceManager implements BeanFactoryPostProcessor {
         }
 
         for(ServiceConfig config : serviceConfigList) {
-            NioServiceInvocationHandler handler = new NioServiceInvocationHandler(rm, config).init();
+            NioServiceInvocationHandler handler = null;
+            try {
+                handler = new NioServiceInvocationHandler(rm, config).init();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             Object remoteServiceInstance = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{config.getServiceInterface()}, handler);
             servicesMap.put(config.getServiceInterface(), remoteServiceInstance);
         }

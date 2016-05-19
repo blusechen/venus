@@ -88,6 +88,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
                 config.setServiceInterface(serviceClass);
                 config.setServiceAnnotation(serviceAnnotation);
                 config.setServiceName(serviceName);
+                config.setVersion(serviceAnnotation.version());
                 config.setOverride(overrideAttr == null ? false : Boolean.parseBoolean(overrideAttr));
                 if (config.isOverride()) {
                     if (addressListAttr == null) {

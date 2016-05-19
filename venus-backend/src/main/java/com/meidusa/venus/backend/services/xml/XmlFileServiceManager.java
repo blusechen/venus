@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.meidusa.venus.backend.network.handler.CodeMapScanner;
 import com.meidusa.venus.extension.monitor.MonitorExtensionResolver;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
@@ -69,6 +70,7 @@ public class XmlFileServiceManager extends AbstractServiceManager implements Ini
     private BeanFactory beanFactory;
     private BeanContext beanContext;
 
+
     public String[] getConfigFiles() {
         return configFiles;
     }
@@ -84,6 +86,7 @@ public class XmlFileServiceManager extends AbstractServiceManager implements Ini
     @Override
     public void afterPropertiesSet() throws Exception {
 
+        CodeMapScanner.getCodeMap();
         MonitorExtensionResolver.resolver();
 
         beanContext = new BeanContext() {
