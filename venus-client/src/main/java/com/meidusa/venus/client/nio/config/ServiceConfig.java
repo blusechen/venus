@@ -1,6 +1,7 @@
 package com.meidusa.venus.client.nio.config;
 
 import com.meidusa.venus.annotations.Service;
+import com.meidusa.venus.io.authenticate.Authenticator;
 
 import java.util.List;
 
@@ -38,6 +39,11 @@ public class ServiceConfig {
      * 服务远程地址
      **/
     private List<RemoteServer> servers;
+
+    /**
+     * 服务认证方式
+     */
+    private Authenticator authenticator;
 
     /**
      * 服务连接池最大激活数
@@ -120,6 +126,14 @@ public class ServiceConfig {
 
     public void setServers(List<RemoteServer> servers) {
         this.servers = servers;
+    }
+
+    public Authenticator getAuthenticator() {
+        return authenticator;
+    }
+
+    public void setAuthenticator(Authenticator authenticator) {
+        this.authenticator = authenticator;
     }
 
     public int getMaxActive() {

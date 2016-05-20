@@ -12,6 +12,12 @@ public class NodeConstants {
     public static final String ELEMENT_SERVICES_NAME = "services";
     public static final String ATTRIBUTE_SERVICES_ID = "id";
     public static final String ATTRIBUTE_SERVICES_REF_REGISTRY_ID_NAME = "ref-registry-id";
+    public static final String ELEMENT_SERVICE_AUTHENTICATION_DUMMY_AUTHENTICATOR = "dummyAuthentication";
+    public static final String ELEMENT_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR = "userNamePasswordAuthentication";
+    public static final String ATTRIBUTE_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR_USERNAME = "username";
+    public static final String ATTRIBUTE_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR_PASSWORD = "password";
+    public static final String ATTRIBUTE_SERVICE_SERIALIZER_TYPE = "serializerType";
+
     public static final String ELEMENT_SERVICE_NAME = "service";
     public static final String ATTRIBUTE_SERVICE_INTERFACE_NAME = "interface";
     public static final String ATTRIBUTE_SERVICE_OVERRIDE_NAME = "override";

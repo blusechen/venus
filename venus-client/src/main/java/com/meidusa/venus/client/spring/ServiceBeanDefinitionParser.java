@@ -8,6 +8,9 @@ import com.meidusa.venus.client.nio.config.RemoteServer;
 import com.meidusa.venus.client.nio.config.ServiceConfig;
 import com.meidusa.venus.client.spring.exception.VenusServiceInterfaceNotFoundException;
 import com.meidusa.venus.exception.DefaultVenusException;
+import com.meidusa.venus.io.authenticate.Authenticator;
+import com.meidusa.venus.io.authenticate.DummyAuthenticator;
+import com.meidusa.venus.io.authenticate.UserPasswordAuthenticator;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -31,7 +34,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
         String refRegistryId = element.getAttribute(NodeConstants.ATTRIBUTE_SERVICES_REF_REGISTRY_ID_NAME);
         Assert.hasLength(servicesId, "服务管理ID不能为空");
         Assert.hasLength(refRegistryId, "服务注册中心ID不能为空");
-        List<ServiceConfig> serviceConfigs = createServiceList(element.getChildNodes());
+        List<ServiceConfig> serviceConfigs = createServiceConfigList(element.getChildNodes());
         RootBeanDefinition rbd = new RootBeanDefinition();
         rbd.setBeanClass(ServiceManager.class);
         rbd.getPropertyValues().add("serviceConfigList", serviceConfigs);
@@ -41,7 +44,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
         return rbd;
     }
 
-    private List<ServiceConfig> createServiceList(NodeList childNodes) {
+    private List<ServiceConfig> createServiceConfigList(NodeList childNodes) {
 
         List<ServiceConfig> serviceConfigs = new ArrayList<ServiceConfig>();
 
@@ -49,6 +52,8 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
             return serviceConfigs;
         }
         int size = childNodes.getLength();
+
+        Authenticator authenticator = null;
         for (int i = 0; i < size; i++) {
             Node node = childNodes.item(i);
             if (node instanceof Element && node.getLocalName().equals(NodeConstants.ELEMENT_SERVICE_NAME)) {
@@ -164,8 +169,20 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
                 }
 
                 serviceConfigs.add(config);
+            } else if (node instanceof Element && node.getLocalName().equals(NodeConstants.ELEMENT_SERVICE_AUTHENTICATION_DUMMY_AUTHENTICATOR)) {
+                authenticator = new DummyAuthenticator();
+                authenticator.setSerializeType(Byte.parseByte(((Element) node).getAttribute(NodeConstants.ATTRIBUTE_SERVICE_SERIALIZER_TYPE)));
+            } else if (node instanceof Element && node.getLocalName().equals(NodeConstants.ELEMENT_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR)) {
+                authenticator = new UserPasswordAuthenticator();
+                ((UserPasswordAuthenticator)authenticator).setUsername(((Element) node).getAttribute(NodeConstants.ATTRIBUTE_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR_USERNAME));
+                ((UserPasswordAuthenticator)authenticator).setPassword(((Element) node).getAttribute(NodeConstants.ATTRIBUTE_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR_PASSWORD));
+                authenticator.setSerializeType(Byte.parseByte(((Element) node).getAttribute(NodeConstants.ATTRIBUTE_SERVICE_SERIALIZER_TYPE)));
             }
 
+        }
+
+        for(ServiceConfig config: serviceConfigs) {
+            config.setAuthenticator(authenticator);
         }
 
 

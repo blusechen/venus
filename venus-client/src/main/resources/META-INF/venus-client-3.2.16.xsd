@@ -19,6 +19,20 @@
     <xsd:element name="services">
         <xsd:complexType>
             <xsd:sequence>
+                <xsd:choice>
+                    <xsd:element name="dummyAuthentication">
+                        <xsd:complexType>
+                            <xsd:attribute name="serializerType" type="xsd:int" default="0"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="userNamePasswordAuthentication">
+                        <xsd:complexType>
+                            <xsd:attribute name="username" type="xsd:string" use="required"/>
+                            <xsd:attribute name="password" type="xsd:string" use="required"/>
+                            <xsd:attribute name="serializerType" type="xsd:int" default="0"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
                 <xsd:element name="service" maxOccurs="unbounded">
                     <xsd:complexType>
                         <xsd:attribute name="interface" type="xsd:string" use="required"/>

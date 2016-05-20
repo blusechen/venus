@@ -7,6 +7,7 @@ import com.meidusa.venus.client.VenusNIOMessageHandler;
 import com.meidusa.venus.client.nio.config.ServiceConfig;
 import com.meidusa.venus.exception.DefaultVenusException;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -22,7 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * Created by huawei on 5/17/16.
  */
-public class ServiceManager implements BeanFactoryPostProcessor {
+public class ServiceManager implements InitializingBean, BeanFactoryPostProcessor {
 
     private String refRegistryId;
     private List<ServiceConfig> serviceConfigList;
@@ -37,8 +38,9 @@ public class ServiceManager implements BeanFactoryPostProcessor {
     private VenusNIOMessageHandler messageHandler = new VenusNIOMessageHandler();
     private int asyncExecutorSize = 10;
 
-    @PostConstruct
-    public void init() throws Exception{
+
+    @Override
+    public void afterPropertiesSet() throws Exception{
         if (serviceConfigList != null && serviceConfigList.size() >0) {
             executors = Executors.newScheduledThreadPool(serviceConfigList.size());
         }else {
@@ -80,12 +82,13 @@ public class ServiceManager implements BeanFactoryPostProcessor {
         for(ServiceConfig config : serviceConfigList) {
             NioServiceInvocationHandler handler = null;
             try {
-                handler = new NioServiceInvocationHandler(rm, config).init();
+                handler = new NioServiceInvocationHandler(rm, config, this.connector).init();
             } catch (Exception e) {
                 e.printStackTrace();
             }
             Object remoteServiceInstance = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{config.getServiceInterface()}, handler);
             servicesMap.put(config.getServiceInterface(), remoteServiceInstance);
+            beanFactory.registerSingleton(config.getServiceName(), remoteServiceInstance);
         }
 
     }
