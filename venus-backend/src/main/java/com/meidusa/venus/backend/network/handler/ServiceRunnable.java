@@ -209,7 +209,7 @@ public class ServiceRunnable extends MultiQueueRunnable {
             long endRunTime = TimeUtil.currentTimeMillis();
             long queuedTime = startRunTime - data.left;
             long executeTime = endRunTime - startRunTime;
-            if (endpoint.getTimeWait() > ((queuedTime + executeTime)/1000)) {
+            if (endpoint.getTimeWait() < (queuedTime + executeTime)) {
                 VenusMonitorDelegate.getInstance().reportMetric(VenusMonitorDelegate.getExecuteTimeoutKey(request.apiName), MonitorConstants.metricCount);
             }
             MonitorRuntime.getInstance().calculateAverage(endpoint.getService().getName(), endpoint.getName(), executeTime, false);
