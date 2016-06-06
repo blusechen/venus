@@ -10,11 +10,11 @@ public class VenusMonitorDelegate {
 
     private static VenusMonitorDelegate instance = new VenusMonitorDelegate();
 
-    private VenusMonitorDelegate(){
+    private VenusMonitorDelegate() {
 
     }
 
-    public static VenusMonitorDelegate getInstance(){
+    public static VenusMonitorDelegate getInstance() {
         return instance;
     }
 
@@ -25,14 +25,32 @@ public class VenusMonitorDelegate {
     }
 
     public void reportMetric(String key, int value) {
-        for(AbstractMonitorClient client: realMonitor) {
+        for (AbstractMonitorClient client : realMonitor) {
             client.logMetric(key, value);
         }
     }
 
     public void reportError(String message, Throwable cause) {
-        for(AbstractMonitorClient client: realMonitor) {
+        for (AbstractMonitorClient client : realMonitor) {
             client.logError(message, cause);
+        }
+    }
+
+    public void startTransaction(String rootId, String parentId, String messageId) {
+        for (AbstractMonitorClient client : realMonitor) {
+            client.startTransaction(rootId, parentId, messageId);
+        }
+    }
+
+    public void setTransactionData(String key, Object value) {
+        for (AbstractMonitorClient client : realMonitor) {
+            client.setTransactionData(key, value);
+        }
+    }
+
+    public void completeTransaction() {
+        for (AbstractMonitorClient client : realMonitor) {
+            client.completeTransaction();
         }
     }
 
@@ -44,14 +62,13 @@ public class VenusMonitorDelegate {
         return apiName + ".queue.timeout";
     }
 
-    public static String getExecuteTimeoutKey(String apiName){
+    public static String getExecuteTimeoutKey(String apiName) {
         return apiName + ".execute.timeout";
     }
 
     public static String getInvokeKey(String apiName) {
-        return apiName +".invoke";
+        return apiName + ".invoke";
     }
-
 
 
 }

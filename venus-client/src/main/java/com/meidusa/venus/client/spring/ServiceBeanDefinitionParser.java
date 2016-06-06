@@ -3,6 +3,7 @@ package com.meidusa.venus.client.spring;
 import com.meidusa.toolkit.util.StringUtil;
 import com.meidusa.venus.annotations.Service;
 import com.meidusa.venus.annotations.util.AnnotationUtil;
+import com.meidusa.venus.client.Utils;
 import com.meidusa.venus.client.nio.ServiceManager;
 import com.meidusa.venus.client.nio.config.RemoteServer;
 import com.meidusa.venus.client.nio.config.ServiceConfig;
@@ -11,6 +12,8 @@ import com.meidusa.venus.exception.DefaultVenusException;
 import com.meidusa.venus.io.authenticate.Authenticator;
 import com.meidusa.venus.io.authenticate.DummyAuthenticator;
 import com.meidusa.venus.io.authenticate.UserPasswordAuthenticator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -28,6 +31,9 @@ import java.util.List;
  * Created by huawei on 5/17/16.
  */
 public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
+
+    private static Logger logger = LoggerFactory.getLogger(ServiceBeanDefinitionParser.class);
+
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         String servicesId = element.getAttribute(NodeConstants.ATTRIBUTE_SERVICES_ID);
@@ -45,14 +51,11 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private List<ServiceConfig> createServiceConfigList(NodeList childNodes) {
-
         List<ServiceConfig> serviceConfigs = new ArrayList<ServiceConfig>();
-
         if (childNodes == null || childNodes.getLength() == 0) {
             return serviceConfigs;
         }
         int size = childNodes.getLength();
-
         Authenticator authenticator = null;
         for (int i = 0; i < size; i++) {
             Node node = childNodes.item(i);
@@ -88,6 +91,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
                 String timeBetweenEvictionRunsMillsAttr = serviceElement.getAttribute(NodeConstants.ATTRIBUTE_SERVICE_TIME_BETWEEN_EVICTION_RUNS_MILLS_NAME);
                 String testOnBorrowAttr = serviceElement.getAttribute(NodeConstants.ATTRIBUTE_SERVICE_TEST_ON_BORROW_NAME);
                 String testOnWhileIdleAttr = serviceElement.getAttribute(NodeConstants.ATTRIBUTE_SERVICE_TEST_WHILE_IDLE);
+                String timeWaitAttr = serviceElement.getAttribute(NodeConstants.ATTRIBUTE_SERVICE_TIME_WAIT);
 
                 ServiceConfig config = new ServiceConfig();
                 config.setServiceInterface(serviceClass);
@@ -95,97 +99,68 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
                 config.setServiceName(serviceName);
                 config.setVersion(serviceAnnotation.version());
                 config.setOverride(overrideAttr == null ? false : Boolean.parseBoolean(overrideAttr));
+
                 if (config.isOverride()) {
                     if (addressListAttr == null) {
                         config.setOverride(false);
-                    } else {
-                        String[] addressArray = StringUtil.split(addressListAttr, ",");
-                        if (addressArray == null || addressArray.length == 0) {
+                    }else {
+                        List<String> addressList = new ArrayList<String>();
+                        String[] addresses = StringUtil.split(addressListAttr);
+                        if (addresses == null || addresses.length == 0) {
                             config.setOverride(false);
-                        } else {
-                            List<RemoteServer> servers = new ArrayList<RemoteServer>();
-                            for (String address : addressArray) {
-                                String[] array = StringUtil.split(address, ":");
-                                if (array == null || array.length == 0 || array.length != 2) {
-                                    continue;
-                                }
-                                RemoteServer server = new RemoteServer();
-                                server.setHostname(array[0]);
-                                try {
-                                    server.setPort(Integer.parseInt(array[1]));
-                                } catch (NumberFormatException e) {
-                                    continue;
-                                }
-                                servers.add(server);
+                        }else {
+                            for(String address : addresses) {
+                                addressList.add(address);
                             }
-                            if (servers.size() > 0) {
-                                config.setServers(servers);
-                            }
+
+                            config.setAddresses(addressList);
                         }
-
                     }
+
                 }
-                if (maxActiveAttr != null) {
-                    try {
-                        config.setMaxActive(Integer.parseInt(maxActiveAttr));
-                    } catch (NumberFormatException nfe) {
-
-                    }
+                if (StringUtils.hasLength(maxActiveAttr)) {
+                    config.setMaxActive(Integer.parseInt(maxActiveAttr));
                 }
-                if (maxIdleAttr != null) {
-                    try {
-                        config.setMaxIdle(Integer.parseInt(maxIdleAttr));
-                    } catch (NumberFormatException nfe) {
-
-                    }
+                if (StringUtils.hasLength(maxIdleAttr)) {
+                    config.setMaxIdle(Integer.parseInt(maxIdleAttr));
                 }
-                if (minIdleAttr != null) {
-                    try {
-                        config.setMinIdle(Integer.parseInt(minIdleAttr));
-                    } catch (NumberFormatException nfe) {
-
-                    }
+                if (StringUtils.hasLength(minIdleAttr)) {
+                    config.setMinIdle(Integer.parseInt(minIdleAttr));
+                }
+                if (StringUtils.hasLength(minEvictableIdleTimeMillisAttr)) {
+                    config.setMinEvictableIdleTimeMillis(Integer.parseInt(minEvictableIdleTimeMillisAttr));
                 }
 
-                if (minEvictableIdleTimeMillisAttr != null) {
-                    try {
-                        config.setMinEvictableIdleTimeMillis(Integer.parseInt(minEvictableIdleTimeMillisAttr));
-                    } catch (NumberFormatException e) {
-
-                    }
+                if (StringUtils.hasLength(timeBetweenEvictionRunsMillsAttr)) {
+                    config.setTimeBetweenEvictionRunsMillis(Integer.parseInt(timeBetweenEvictionRunsMillsAttr));
                 }
-                if (timeBetweenEvictionRunsMillsAttr != null) {
-                    try {
-                        config.setTimeBetweenEvictionRunsMillis(Integer.parseInt(timeBetweenEvictionRunsMillsAttr));
-                    } catch (NumberFormatException e) {
 
-                    }
-                }
-                if (testOnBorrowAttr != null) {
+                if (StringUtils.hasLength(testOnBorrowAttr)) {
                     config.setTestOnBorrow(Boolean.parseBoolean(testOnBorrowAttr));
                 }
-                if (testOnWhileIdleAttr != null) {
+                if (StringUtils.hasLength(testOnWhileIdleAttr)) {
                     config.setTestWhileIdle(Boolean.parseBoolean(testOnWhileIdleAttr));
                 }
 
+                if (StringUtils.hasLength(timeWaitAttr)) {
+                    config.setTimeWait(Integer.parseInt(timeWaitAttr));
+                }
                 serviceConfigs.add(config);
             } else if (node instanceof Element && node.getLocalName().equals(NodeConstants.ELEMENT_SERVICE_AUTHENTICATION_DUMMY_AUTHENTICATOR)) {
                 authenticator = new DummyAuthenticator();
                 authenticator.setSerializeType(Byte.parseByte(((Element) node).getAttribute(NodeConstants.ATTRIBUTE_SERVICE_SERIALIZER_TYPE)));
             } else if (node instanceof Element && node.getLocalName().equals(NodeConstants.ELEMENT_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR)) {
                 authenticator = new UserPasswordAuthenticator();
-                ((UserPasswordAuthenticator)authenticator).setUsername(((Element) node).getAttribute(NodeConstants.ATTRIBUTE_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR_USERNAME));
-                ((UserPasswordAuthenticator)authenticator).setPassword(((Element) node).getAttribute(NodeConstants.ATTRIBUTE_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR_PASSWORD));
+                ((UserPasswordAuthenticator) authenticator).setUsername(((Element) node).getAttribute(NodeConstants.ATTRIBUTE_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR_USERNAME));
+                ((UserPasswordAuthenticator) authenticator).setPassword(((Element) node).getAttribute(NodeConstants.ATTRIBUTE_SERVICE_AUTHENTICATION_USERNAME_AUTHENTICATOR_PASSWORD));
                 authenticator.setSerializeType(Byte.parseByte(((Element) node).getAttribute(NodeConstants.ATTRIBUTE_SERVICE_SERIALIZER_TYPE)));
             }
 
         }
-
-        for(ServiceConfig config: serviceConfigs) {
+        for (ServiceConfig config : serviceConfigs) {
             config.setAuthenticator(authenticator);
+            logger.debug("service config:", config);
         }
-
-
         return serviceConfigs;
     }
 }

@@ -1,10 +1,12 @@
 package com.meidusa.venus.client.nio;
 
 import com.meidusa.toolkit.net.*;
+import com.meidusa.toolkit.net.util.LoopingThread;
 import com.meidusa.toolkit.util.StringUtil;
 import com.meidusa.toolkit.util.TimeUtil;
 import com.meidusa.venus.annotations.Endpoint;
 import com.meidusa.venus.annotations.Service;
+import com.meidusa.venus.client.Utils;
 import com.meidusa.venus.client.VenusInvocationHandler;
 import com.meidusa.venus.client.VenusNIOMessageHandler;
 import com.meidusa.venus.client.nio.config.RemoteServer;
@@ -19,10 +21,14 @@ import com.meidusa.venus.metainfo.EndpointParameter;
 import com.meidusa.venus.notify.InvocationListener;
 import com.meidusa.venus.util.VenusAnnotationUtils;
 import com.meidusa.venus.util.VenusTracerUtil;
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,6 +39,40 @@ import java.util.concurrent.atomic.AtomicLong;
 public class NioServiceInvocationHandler extends VenusInvocationHandler implements Runnable {
 
     private static ExecutorService es = Executors.newCachedThreadPool();
+
+    static {
+        new LoopingThread(){
+            @Override
+            protected void iterate() throws Throwable {
+                try{
+                    TimeUnit.MINUTES.sleep(1L);
+                }catch (Exception e) {
+
+                }
+
+                Iterator<RemoveUnusedPoolTask> iterator = queue.iterator();
+                while(iterator.hasNext()) {
+                    RemoveUnusedPoolTask task = iterator.next();
+                    if(task.canRemove()) {
+                        iterator.remove();
+                        if(task.getRemovePool() instanceof MultipleLoadBalanceBackendConnectionPool) {
+                            MultipleLoadBalanceBackendConnectionPool mlbbcp = (MultipleLoadBalanceBackendConnectionPool) task.getRemovePool();
+                            BackendConnectionPool[] pools = mlbbcp.getObjectPools();
+                            for(BackendConnectionPool pool : pools) {
+                                pool.close();
+                            }
+                        }else {
+                            task.getRemovePool().close();
+                        }
+                    }
+                }
+
+
+            }
+        }.start();
+    }
+
+    private static BlockingQueue<RemoveUnusedPoolTask> queue = new ArrayBlockingQueue<RemoveUnusedPoolTask>(50);
 
     private RegistryManager rm;
     private ServiceConfig config;
@@ -57,49 +97,51 @@ public class NioServiceInvocationHandler extends VenusInvocationHandler implemen
 
     }
 
+    private void createPool(List<String> remoteAddresses) {
+        BackendConnectionPool nioPools[] = new BackendConnectionPool[remoteAddresses.size()];
+
+        for(int i = 0;i < remoteAddresses.size(); i++) {
+            VenusBackendConnectionFactory nioFactory = new VenusBackendConnectionFactory();
+            nioFactory.setAuthenticator(config.getAuthenticator());
+            String temp[] = StringUtil.split(remoteAddresses.get(i), ":");
+            nioFactory.setHost(temp[0]);
+            if (temp.length > 1) {
+                nioFactory.setPort(Integer.parseInt(temp[1]));
+            }else {
+                nioFactory.setPort(16800);
+            }
+            nioFactory.setConnector(connector);
+            nioFactory.setMessageHandler(handler);
+
+            nioPools[i] = new PollingBackendConnectionPool("N-" + remoteAddresses.get(i) , nioFactory, 8);
+            nioPools[i].init();
+        }
+
+        if (remoteAddresses.size() == 1) {
+            pool = nioPools[0];
+        }else {
+            MultipleLoadBalanceBackendConnectionPool mlbbcp = new MultipleLoadBalanceBackendConnectionPool("", 1, nioPools);
+            pool = mlbbcp;
+        }
+    }
+
+
     public NioServiceInvocationHandler init() throws Exception {
-        List<RemoteServer> servers;
+        List<String> remoteAddresses;
         try{
             if (!config.isOverride()) {
-                List<String> remoteAddresses = rm.getRemote(config.getServiceName(), config.getVersion());
-                if (remoteAddresses == null || remoteAddresses.size() <= 0) {
-                    throw new DefaultVenusException(0, "未知远程服务地址");
-                }
-                currentRemoteAddress = remoteAddresses;
-
-                BackendConnectionPool nioPools[] = new BackendConnectionPool[remoteAddresses.size()];
-
-                for(int i = 0;i < remoteAddresses.size(); i++) {
-                    VenusBackendConnectionFactory nioFactory = new VenusBackendConnectionFactory();
-                    nioFactory.setAuthenticator(config.getAuthenticator());
-                    String temp[] = StringUtil.split(remoteAddresses.get(i), ":");
-                    nioFactory.setHost(temp[0]);
-                    if (temp.length > 1) {
-                        nioFactory.setPort(Integer.parseInt(temp[1]));
-                    }else {
-                        nioFactory.setPort(16800);
-                    }
-                    nioFactory.setConnector(connector);
-                    nioFactory.setMessageHandler(handler);
-
-                    nioPools[i] = new PollingBackendConnectionPool("N-" + remoteAddresses.get(i) , nioFactory, 8);
-                    nioPools[i].init();
-                }
-
-                if (remoteAddresses.size() == 1) {
-                    pool = nioPools[0];
-                }else {
-                    MultipleLoadBalanceBackendConnectionPool mlbbcp = new MultipleLoadBalanceBackendConnectionPool("", 1, nioPools);
-                    pool = mlbbcp;
-                }
-
+                remoteAddresses = rm.getRemote(config.getServiceName(), config.getVersion());
             }else {
-                servers = config.getServers();
+                remoteAddresses = config.getAddresses();
             }
+            if (remoteAddresses == null || remoteAddresses.size() <= 0) {
+                throw new DefaultVenusException(0, "未知远程服务地址");
+            }
+            currentRemoteAddress = remoteAddresses;
+            createPool(currentRemoteAddress);
         }catch (Exception e) {
             e.printStackTrace();
         }
-
         return this;
     }
 
@@ -107,6 +149,23 @@ public class NioServiceInvocationHandler extends VenusInvocationHandler implemen
     public void run() {
         if (!config.isOverride()) {
 
+            List<String> remoteAddresses = rm.getRemote(config.getServiceName(), config.getVersion());
+
+            if (remoteAddresses == null) {
+                return;
+            }
+
+            if (remoteAddresses.size() == 0) {
+
+                return;
+            }
+            if (!remoteAddresses.equals(currentRemoteAddress)) {
+                BackendConnectionPool currentPool = pool;
+                createPool(remoteAddresses);
+                RemoveUnusedPoolTask task = new RemoveUnusedPoolTask();
+                task.setRemovePool(currentPool);
+                queue.offer(task);
+            }
         }
     }
 
@@ -140,17 +199,13 @@ public class NioServiceInvocationHandler extends VenusInvocationHandler implemen
 
             }
         }
-
-        long start = TimeUtil.currentTimeMillis();
-        long borrowed = start;
-
         BackendConnection conn = null;
 
         NioPacketWaitTask task = new NioPacketWaitTask();
 
 
         if (method.getGenericReturnType() != Void.class) {
-            task.setExpireTime(30);
+            task.setExpireTime(config.getTimeWait());
             task.setReturnType(method.getGenericReturnType());
             NioInvocationContainer.getInstance().put(serviceRequestPacket.clientRequestId, task);
         }
@@ -174,9 +229,8 @@ public class NioServiceInvocationHandler extends VenusInvocationHandler implemen
 
         Future future = es.submit(new NioCallable(task));
 
-        long time = System.currentTimeMillis();
         try{
-            Object result =  future.get(30*1000, TimeUnit.SECONDS);
+            Object result =  future.get(config.getTimeWait()*1000, TimeUnit.SECONDS);
             return result;
         }catch (Exception e) {
 
@@ -186,29 +240,6 @@ public class NioServiceInvocationHandler extends VenusInvocationHandler implemen
             throw new Exception("server execute time is too looooooooooooooooooooooog");
         }
 
-        return task.getResult();
-    }
-}
-
-class NioCallable implements Callable {
-
-    private NioPacketWaitTask task;
-
-    public NioCallable(NioPacketWaitTask task) {
-        this.task = task;
-    }
-
-    @Override
-    public Object call() throws Exception {
-        while(true) {
-            if(task.isComplete()) {
-                break;
-            }
-
-            if (task.isExpire()) {
-                break;
-            }
-        }
         return task.getResult();
     }
 }

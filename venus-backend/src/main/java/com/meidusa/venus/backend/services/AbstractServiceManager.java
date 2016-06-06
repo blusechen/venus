@@ -112,7 +112,7 @@ public abstract class AbstractServiceManager implements ServiceManager {
 
     /**
      * invoked when supportOverload, check parameters
-     * 
+     *
      * @param endpoints
      * @param paramNames
      * @return
@@ -160,7 +160,6 @@ public abstract class AbstractServiceManager implements ServiceManager {
     }
 
     /**
-     * 
      * @param method
      * @return
      * @throws ServiceDefinitionException
@@ -235,4 +234,6 @@ public abstract class AbstractServiceManager implements ServiceManager {
 
         return p;
     }
+
 }
+

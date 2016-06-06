@@ -29,4 +29,5 @@ public class NodeConstants {
     public static final String ATTRIBUTE_SERVICE_TIME_BETWEEN_EVICTION_RUNS_MILLS_NAME = "timeBetweenEvictionRunsMillis";
     public static final String ATTRIBUTE_SERVICE_TEST_ON_BORROW_NAME = "testOnBorrow";
     public static final String ATTRIBUTE_SERVICE_TEST_WHILE_IDLE = "testWhileIdle";
+    public static final String ATTRIBUTE_SERVICE_TIME_WAIT = "timeWait";
 }

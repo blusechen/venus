@@ -45,6 +45,7 @@
                         <xsd:attribute name="timeBetweenEvictionRunsMillis" type="xsd:int" use="optional" default="60000"/>
                         <xsd:attribute name="testOnBorrow" type="xsd:boolean" use="optional" default="true"/>
                         <xsd:attribute name="testWhileIdle" type="xsd:boolean" use="optional" default="true"/>
+                        <xsd:attribute name="timeWait" type="xsd:int" use="optional" default="30"/>
                     </xsd:complexType>
                 </xsd:element>
             </xsd:sequence>

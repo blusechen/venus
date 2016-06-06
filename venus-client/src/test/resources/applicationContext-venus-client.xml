@@ -17,6 +17,4 @@
 		<venus-client:service interface="com.meidusa.venus.service.registry.ServiceRegistry" />
 	</venus-client:services>
 
-	<bean id="testBean" class="TestBean"/>
-
 </beans>
