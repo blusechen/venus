@@ -1,8 +1,8 @@
 package com.meidusa.venus.poolable;
 
-import java.util.Map;
-
 import com.meidusa.venus.annotations.Endpoint;
+
+import java.util.Map;
 
 public interface RequestLoadbalanceObjectPool {
 

@@ -19,12 +19,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.meidusa.venus.annotations.Endpoint;
+import com.meidusa.venus.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.meidusa.toolkit.common.util.StringUtil;
-import com.meidusa.venus.annotations.Endpoint;
-import com.meidusa.venus.annotations.Service;
 import com.meidusa.venus.annotations.util.AnnotationUtil;
 import com.meidusa.venus.exception.CodedException;
 import com.meidusa.venus.metainfo.EndpointParameter;

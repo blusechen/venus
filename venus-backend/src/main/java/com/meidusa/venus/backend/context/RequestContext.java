@@ -20,6 +20,9 @@ public class RequestContext {
      * 用于跟踪venus请求的id,该id一但产生,将带经过多个venus系统
      */
     private String traceId;
+    private String rootId;
+    private String parentId;
+    private String messageId;
 
     public String getTraceId() {
         return traceId;
@@ -59,6 +62,30 @@ public class RequestContext {
 
     public void setRequestInfo(RequestInfo requestInfo) {
         this.requestInfo = requestInfo;
+    }
+
+    public String getRootId() {
+        return rootId;
+    }
+
+    public void setRootId(String rootId) {
+        this.rootId = rootId;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     public static RequestContext getRequestContext() {

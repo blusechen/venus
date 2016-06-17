@@ -126,6 +126,7 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
 
     @Override
     public void handle(final VenusFrontendConnection conn, final Tuple<Long, byte[]> data) {
+
         final long waitTime = TimeUtil.currentTimeMillis() - data.left;
 
         byte[] message = data.right;

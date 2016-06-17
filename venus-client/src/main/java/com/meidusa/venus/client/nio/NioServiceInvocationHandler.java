@@ -3,13 +3,10 @@ package com.meidusa.venus.client.nio;
 import com.meidusa.toolkit.net.*;
 import com.meidusa.toolkit.net.util.LoopingThread;
 import com.meidusa.toolkit.util.StringUtil;
-import com.meidusa.toolkit.util.TimeUtil;
 import com.meidusa.venus.annotations.Endpoint;
 import com.meidusa.venus.annotations.Service;
-import com.meidusa.venus.client.Utils;
 import com.meidusa.venus.client.VenusInvocationHandler;
 import com.meidusa.venus.client.VenusNIOMessageHandler;
-import com.meidusa.venus.client.nio.config.RemoteServer;
 import com.meidusa.venus.client.nio.config.ServiceConfig;
 import com.meidusa.venus.exception.DefaultVenusException;
 import com.meidusa.venus.io.network.VenusBackendConnectionFactory;
@@ -21,12 +18,11 @@ import com.meidusa.venus.metainfo.EndpointParameter;
 import com.meidusa.venus.notify.InvocationListener;
 import com.meidusa.venus.util.VenusAnnotationUtils;
 import com.meidusa.venus.util.VenusTracerUtil;
-import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +34,12 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class NioServiceInvocationHandler extends VenusInvocationHandler implements Runnable {
 
-    private static ExecutorService es = Executors.newCachedThreadPool();
+    private static Logger logger = LoggerFactory.getLogger(NioServiceInvocationHandler.class);
+
+    private static int corePool = Runtime.getRuntime().availableProcessors();
+    private static ExecutorService es = new ThreadPoolExecutor(corePool * 2, corePool * 2,
+                                                              0L, TimeUnit.MILLISECONDS,
+                                                              new LinkedBlockingQueue<Runnable>(), new ThreadPoolExecutor.CallerRunsPolicy());
 
     static {
         new LoopingThread(){
@@ -49,7 +50,6 @@ public class NioServiceInvocationHandler extends VenusInvocationHandler implemen
                 }catch (Exception e) {
 
                 }
-
                 Iterator<RemoveUnusedPoolTask> iterator = queue.iterator();
                 while(iterator.hasNext()) {
                     RemoveUnusedPoolTask task = iterator.next();
@@ -148,13 +148,10 @@ public class NioServiceInvocationHandler extends VenusInvocationHandler implemen
     @Override
     public void run() {
         if (!config.isOverride()) {
-
             List<String> remoteAddresses = rm.getRemote(config.getServiceName(), config.getVersion());
-
             if (remoteAddresses == null) {
                 return;
             }
-
             if (remoteAddresses.size() == 0) {
 
                 return;
@@ -188,6 +185,9 @@ public class NioServiceInvocationHandler extends VenusInvocationHandler implemen
         serviceRequestPacket.apiName = VenusAnnotationUtils.getApiname(method, service, endpoint);
         serviceRequestPacket.serviceVersion = service.version();
         serviceRequestPacket.parameterMap = new HashMap<String, Object>();
+        serviceRequestPacket.parentId = null;
+        serviceRequestPacket.rootId = null;
+        serviceRequestPacket.messageId = null;
 
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
@@ -212,7 +212,6 @@ public class NioServiceInvocationHandler extends VenusInvocationHandler implemen
 
         BackendConnectionPool currentPool = pool;
         try{
-
             conn = currentPool.borrowObject();
             conn.write(serviceRequestPacket.toByteBuffer());
         }catch (Exception e) {
@@ -222,24 +221,16 @@ public class NioServiceInvocationHandler extends VenusInvocationHandler implemen
                 currentPool.returnObject(conn);
             }
         }
-
         if (method.getGenericReturnType() == Void.class) {
             return null;
         }
-
         Future future = es.submit(new NioCallable(task));
-
         try{
             Object result =  future.get(config.getTimeWait()*1000, TimeUnit.SECONDS);
             return result;
         }catch (Exception e) {
-
+            logger.error("", e);
+            throw new DefaultVenusException(0, "server execute time is too long");
         }
-
-        if (task.getResult() == null) {
-            throw new Exception("server execute time is too looooooooooooooooooooooog");
-        }
-
-        return task.getResult();
     }
 }

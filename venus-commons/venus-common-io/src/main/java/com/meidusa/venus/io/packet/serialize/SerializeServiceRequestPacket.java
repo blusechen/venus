@@ -16,6 +16,9 @@ public class SerializeServiceRequestPacket extends AbstractServiceRequestPacket 
     private Serializer serializer;
 
     public byte[] traceId;
+    public byte[] rootId;
+    public byte[] parentId;
+    public byte[] messageId;
 
     public SerializeServiceRequestPacket(Serializer serializer, Map<String, Type> typeMap) {
         super();
@@ -34,20 +37,34 @@ public class SerializeServiceRequestPacket extends AbstractServiceRequestPacket 
         } else {
             traceId = PacketConstant.EMPTY_TRACE_ID;
         }
+
+        // 从3.2.16版本协议增加调用链ID
+        if (buffer.hasRemaining()) {
+            rootId = readId(buffer);
+            parentId = readId(buffer);
+            messageId = readId(buffer);
+        }
+
+
     }
 
     protected void writeBody(ServicePacketBuffer buffer) throws UnsupportedEncodingException {
         super.writeBody(buffer);
-        wirteParams(buffer);
+        writeParams(buffer);
 
         // 兼容3.0.1之前的版本,3.0.2与之后的版本将支持traceID
         if (traceId == null) {
             traceId = EMPTY_TRACE_ID;
         }
         buffer.writeBytes(traceId);
+
+        // 从3.2.16版本协议增加调用链ID
+        writeId(buffer, rootId);
+        writeId(buffer, parentId);
+        writeId(buffer, messageId);
     }
 
-    protected void wirteParams(ServicePacketBuffer buffer) {
+    protected void writeParams(ServicePacketBuffer buffer) {
         if (parameterMap != null) {
             byte[] bts = serializer.encode(parameterMap);
             if (bts != null) {
@@ -77,9 +94,27 @@ public class SerializeServiceRequestPacket extends AbstractServiceRequestPacket 
             }
 
         }
-        
         if(parameterMap == null){
             parameterMap = EMP_MAP;
         }
     }
+
+    private void writeId(ServicePacketBuffer buffer, byte[] id) {
+        if (id != null) {
+            buffer.writeLengthCodedBytes(id);
+        }else {
+            buffer.writeInt(0);
+        }
+    }
+
+    private byte[] readId(ServicePacketBuffer buffer) {
+        int length = buffer.readInt();
+        if (length <= 0) {
+            return null;
+        }
+        byte[] b = new byte[length];
+        buffer.readBytes(b, 0, length);
+        return b;
+    }
+
 }

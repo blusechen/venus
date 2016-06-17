@@ -22,6 +22,7 @@
 		<module>venus-benchmark</module>
 		<module>venus-extension</module>
 		<module>venus-http</module>
+		<module>venus-annotations</module>
 	</modules>
 
 	<dependencies>
@@ -171,6 +172,11 @@
 				<version>${spring.version}</version>
 			</dependency>
 			<!-- venus -->
+			<dependency>
+				<groupId>com.meidusa.venus</groupId>
+				<artifactId>venus-annotations</artifactId>
+				<version>${venus.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.meidusa.venus.commons</groupId>
 				<artifactId>venus-common-base</artifactId>

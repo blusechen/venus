@@ -63,10 +63,15 @@ public class DefaultEndpointInvocation implements EndpointInvocation {
         this.context = context;
     }
 
+
     public void addObserver(InvocationObserver observer) {
         if (!observerList.contains(observer)) {
             observerList.add(observer);
         }
+    }
+
+    public void addObserver(List<InvocationObserver> observer) {
+            observerList.addAll(observer);
     }
 
     @Override

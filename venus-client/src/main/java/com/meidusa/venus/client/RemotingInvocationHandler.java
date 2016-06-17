@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.meidusa.venus.annotations.*;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.pool.ObjectPool;
 import org.slf4j.Logger;
@@ -33,11 +34,6 @@ import com.meidusa.toolkit.common.bean.util.InitialisationException;
 import com.meidusa.toolkit.net.BackendConnection;
 import com.meidusa.toolkit.net.BackendConnectionPool;
 import com.meidusa.toolkit.util.TimeUtil;
-import com.meidusa.venus.annotations.Endpoint;
-import com.meidusa.venus.annotations.ExceptionCode;
-import com.meidusa.venus.annotations.PerformanceLevel;
-import com.meidusa.venus.annotations.RemoteException;
-import com.meidusa.venus.annotations.Service;
 import com.meidusa.venus.annotations.util.AnnotationUtil;
 import com.meidusa.venus.client.xml.bean.EndpointConfig;
 import com.meidusa.venus.client.xml.bean.ServiceConfig;
@@ -158,6 +154,9 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
         serviceRequestPacket.traceId = traceID;
         serviceRequestPacket.apiName = VenusAnnotationUtils.getApiname(method, service, endpoint);
         serviceRequestPacket.serviceVersion = service.version();
+        serviceRequestPacket.parentId = traceID;
+        serviceRequestPacket.rootId = traceID;
+        serviceRequestPacket.messageId = traceID;
         serviceRequestPacket.parameterMap = new HashMap<String, Object>();
         if (params != null) {
             for (int i = 0; i < params.length; i++) {

@@ -86,6 +86,7 @@ public class ServiceRunnable extends MultiQueueRunnable {
 
     @Override
     public void doRun() {
+
         AbstractServicePacket resultPacket = null;
         ResponseHandler responseHandler = new ResponseHandler();
         long startRunTime = TimeUtil.currentTimeMillis();
@@ -232,6 +233,7 @@ public class ServiceRunnable extends MultiQueueRunnable {
     private Response handleRequest(RequestContext context, Endpoint endpoint) {
         Response response = new Response();
         DefaultEndpointInvocation invocation = new DefaultEndpointInvocation(context, endpoint);
+        invocation.addObserver(ObserverScanner.getInvocationObservers());
         try {
             UtilTimerStack.push(ENDPOINT_INVOKED_TIME);
             response.setResult(invocation.invoke());

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.meidusa.venus.annotations.Endpoint;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
@@ -61,7 +62,6 @@ import com.meidusa.toolkit.net.ConnectionManager;
 import com.meidusa.toolkit.net.MultipleLoadBalanceBackendConnectionPool;
 import com.meidusa.toolkit.net.PollingBackendConnectionPool;
 import com.meidusa.toolkit.util.StringUtil;
-import com.meidusa.venus.annotations.Endpoint;
 import com.meidusa.venus.client.xml.bean.FactoryConfig;
 import com.meidusa.venus.client.xml.bean.PoolConfig;
 import com.meidusa.venus.client.xml.bean.Remote;

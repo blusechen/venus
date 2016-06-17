@@ -36,24 +36,6 @@ public class VenusMonitorDelegate {
         }
     }
 
-    public void startTransaction(String rootId, String parentId, String messageId) {
-        for (AbstractMonitorClient client : realMonitor) {
-            client.startTransaction(rootId, parentId, messageId);
-        }
-    }
-
-    public void setTransactionData(String key, Object value) {
-        for (AbstractMonitorClient client : realMonitor) {
-            client.setTransactionData(key, value);
-        }
-    }
-
-    public void completeTransaction() {
-        for (AbstractMonitorClient client : realMonitor) {
-            client.completeTransaction();
-        }
-    }
-
     public static String getParseErrorKey(String apiName) {
         return apiName + ".parse.error";
     }

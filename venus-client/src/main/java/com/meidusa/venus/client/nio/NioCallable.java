@@ -15,9 +15,6 @@ public class NioCallable implements Callable<Object> {
     @Override
     public Object call() throws Exception {
         while(true) {
-            if(task.isComplete()) {
-                break;
-            }
 
             if (task.isExpire()) {
                 break;

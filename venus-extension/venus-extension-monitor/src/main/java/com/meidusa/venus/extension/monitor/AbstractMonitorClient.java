@@ -9,10 +9,4 @@ public abstract class AbstractMonitorClient {
 
     public abstract void logError(String message, Throwable cause);
 
-    public abstract void startTransaction(String rootId, String parentId, String messageId);
-
-    public abstract void setTransactionData(String key, Object value);
-
-    public abstract void completeTransaction();
-
 }
