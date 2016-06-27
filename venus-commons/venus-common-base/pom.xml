@@ -34,6 +34,10 @@
 			<artifactId>commons-beanutils</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.meidusa.venus</groupId>
+			<artifactId>venus-annotations</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.meidusa.toolkit.commons</groupId>
 			<artifactId>toolkit-common-bean</artifactId>
 		</dependency>
