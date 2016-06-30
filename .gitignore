@@ -1,4 +1,3 @@
-
 /.settings
 /venus-backend/target
 /venus-backend/.settings
@@ -54,3 +53,9 @@
 /venus-http/venus-http-backend/target
 /venus-http/venus-http-backend/.classpath
 /.project
+.classpath
+.project
+.settings
+target
+*.iml
+.idea

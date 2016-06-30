@@ -19,11 +19,14 @@ import com.meidusa.venus.client.VenusInvocationHandler;
 import com.meidusa.venus.exception.DefaultVenusException;
 import com.meidusa.venus.exception.InvalidParameterException;
 import com.meidusa.venus.exception.VenusExceptionFactory;
+import com.meidusa.venus.io.authenticate.Authenticator;
 import com.meidusa.venus.io.network.VenusBIOConnection;
 import com.meidusa.venus.io.network.VenusBIOConnectionFactory;
 import com.meidusa.venus.io.packet.AbstractServicePacket;
 import com.meidusa.venus.io.packet.AbstractServiceRequestPacket;
+import com.meidusa.venus.io.packet.AuthenPacket;
 import com.meidusa.venus.io.packet.ErrorPacket;
+import com.meidusa.venus.io.packet.HandshakePacket;
 import com.meidusa.venus.io.packet.OKPacket;
 import com.meidusa.venus.io.packet.PacketConstant;
 import com.meidusa.venus.io.packet.ServicePacketBuffer;
@@ -50,10 +53,10 @@ public class SimpleInvocationHandler extends VenusInvocationHandler {
     @Autowired
     private VenusExceptionFactory venusExceptionFactory;
     private static AtomicLong sequenceId = new AtomicLong(1);
-    private byte serializeType = PacketConstant.CONTENT_TYPE_JSON;
     private InvocationListenerContainer container = new InvocationListenerContainer();
     private VenusBIOConnectionFactory connFactory = new VenusBIOConnectionFactory();
 
+    private Authenticator<HandshakePacket, AuthenPacket> authenticator = null;
     public SimpleInvocationHandler(String host, int port, int coTimeout, int soTimeout) {
         connFactory.setHost(host);
         connFactory.setPort(port);
@@ -61,15 +64,17 @@ public class SimpleInvocationHandler extends VenusInvocationHandler {
         connFactory.setSoTimeout(soTimeout);
     }
 
-    public byte getSerializeType() {
-        return serializeType;
-    }
+    public Authenticator<HandshakePacket, AuthenPacket> getAuthenticator() {
+		return authenticator;
+	}
 
-    public void setSerializeType(byte serializeType) {
-        this.serializeType = serializeType;
-    }
+	public void setAuthenticator(
+			Authenticator<HandshakePacket, AuthenPacket> authenticator) {
+		this.authenticator = authenticator;
+		connFactory.setAuthenticator(authenticator);
+	}
 
-    public VenusExceptionFactory getVenusExceptionFactory() {
+	public VenusExceptionFactory getVenusExceptionFactory() {
         return venusExceptionFactory;
     }
 
@@ -81,7 +86,7 @@ public class SimpleInvocationHandler extends VenusInvocationHandler {
     protected Object invokeRemoteService(Service service, Endpoint endpoint, Method method, EndpointParameter[] params, Object[] args) throws Exception {
         AbstractServiceRequestPacket serviceRequestPacket = null;
 
-        Serializer serializer = SerializerFactory.getSerializer(serializeType);
+        Serializer serializer = SerializerFactory.getSerializer(connFactory.getAuthenticator().getSerializeType());
         serviceRequestPacket = new SerializeServiceRequestPacket(serializer, null);
         serviceRequestPacket.clientId = PacketConstant.VENUS_CLIENT_ID;
         serviceRequestPacket.clientRequestId = sequenceId.getAndIncrement();
