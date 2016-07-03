@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.meidusa.venus.extension.athena.AthenaExtensionResolver;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -82,65 +83,23 @@ public class XmlFileServiceManager extends AbstractServiceManager implements Ini
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
-        beanContext = new BeanContext() {
-            public Object getBean(String beanName) {
-                if (beanFactory != null) {
-                    return beanFactory.getBean(beanName);
-                } else {
-                    return null;
-                }
-            }
-
-            public Object createBean(Class clazz) throws Exception {
-                if (beanFactory instanceof AutowireCapableBeanFactory) {
-                    AutowireCapableBeanFactory factory = (AutowireCapableBeanFactory) beanFactory;
-                    Object object = factory.autowire(clazz, AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, false);
-                    return object;
-                }
-                return null;
-            }
-        };
+        beanContext = new BackendBeanContext(beanFactory);
         BeanContextBean.getInstance().setBeanContext(beanContext);
-        VenusBeanUtilsBean.setInstance(new BeanUtilsBean(new ConvertUtilsBean(), new PropertyUtilsBean()) {
-            @SuppressWarnings("unchecked")
-            public void setProperty(Object bean, String name, Object value) throws IllegalAccessException, InvocationTargetException {
-                if (value instanceof String) {
-                    PropertyDescriptor descriptor = null;
-                    try {
-                        descriptor = getPropertyUtils().getPropertyDescriptor(bean, name);
-                        if (descriptor == null) {
-                            return; // Skip this property setter
-                        } else {
-                            if (descriptor.getPropertyType().isEnum()) {
-                                Class<Enum> clazz = (Class<Enum>) descriptor.getPropertyType();
-                                value = Enum.valueOf(clazz, (String) value);
-                            } else {
-                                Object temp = null;
-                                try {
-                                    temp = ConfigUtil.filter((String) value, beanContext);
-                                } catch (Exception e) {
-                                    logger.error("config filter " + value + " error", e);
-                                }
-                                if (temp == null) {
-                                    temp = ConfigUtil.filter((String) value);
-                                }
-                                value = temp;
-                            }
-                        }
-                    } catch (NoSuchMethodException e) {
-                        return; // Skip this property setter
-                    }
-                }
-                super.setProperty(bean, name, value);
-            }
-
-        });
+        VenusBeanUtilsBean.setInstance(new BackendBeanUtilsBean(new ConvertUtilsBean(), new PropertyUtilsBean(), beanContext));
+        AthenaExtensionResolver.getInstance().resolver();
 
         List<ServiceConfig> serviceConfigList = new ArrayList<ServiceConfig>();
         Map<String, InterceptorMapping> interceptors = new HashMap<String, InterceptorMapping>();
-        Map<String, InterceptorStackConfig> interceptorStatcks = new HashMap<String, InterceptorStackConfig>();
+        Map<String, InterceptorStackConfig> interceptorStacks = new HashMap<String, InterceptorStackConfig>();
+        loadVenusService(serviceConfigList, interceptors, interceptorStacks);
+        loadMonitorService(interceptors, interceptorStacks);
+        loadRegistryService(interceptors, interceptorStacks);
+        initMonitor(serviceConfigList, interceptors, interceptorStacks);
+    }
 
+
+
+    private void loadVenusService(List<ServiceConfig> serviceConfigList, Map<String, InterceptorMapping> interceptors, Map<String, InterceptorStackConfig> interceptorStacks) {
         for (String configFile : configFiles) {
             configFile = (String) ConfigUtil.filter(configFile.trim());
             RuleSet ruleSet = new FromXmlRuleSet(this.getClass().getResource("venusServerRule.xml"), new DigesterRuleParser());
@@ -152,25 +111,11 @@ public class XmlFileServiceManager extends AbstractServiceManager implements Ini
                 Venus venus = (Venus) digester.parse(is);
                 serviceConfigList.addAll(venus.getServiceConfigs());
                 interceptors.putAll(venus.getInterceptors());
-                interceptorStatcks.putAll(venus.getInterceptorStatcks());
+                interceptorStacks.putAll(venus.getInterceptorStatcks());
             } catch (Exception e) {
                 throw new ConfigurationException("can not parser xml:" + configFile, e);
             }
         }
-
-        loadMonitorService(interceptors, interceptorStatcks);
-        loadRegistryService(interceptors, interceptorStatcks);
-
-        for (ServiceConfig config : serviceConfigList) {
-            Service service = loadService(config, interceptors, interceptorStatcks);
-            Map<String, Collection<Endpoint>> ends = service.getEndpoints().asMap();
-            for (Map.Entry<String, Collection<Endpoint>> entry : ends.entrySet()) {
-                if (entry.getValue() != null && !entry.getValue().isEmpty()) {
-                    MonitorRuntime.getInstance().initEndPoint(service.getName(), entry.getValue().iterator().next().getName());
-                }
-            }
-        }
-
     }
 
     protected void loadMonitorService(Map<String, InterceptorMapping> interceptors, Map<String, InterceptorStackConfig> interceptorStatcks) {
@@ -248,6 +193,18 @@ public class XmlFileServiceManager extends AbstractServiceManager implements Ini
         });
 
         loadService(serviceConfig, interceptors, interceptorStatcks);
+    }
+
+    private void initMonitor(List<ServiceConfig> serviceConfigList, Map<String, InterceptorMapping> interceptors, Map<String, InterceptorStackConfig> interceptorStacks) {
+        for (ServiceConfig config : serviceConfigList) {
+            Service service = loadService(config, interceptors, interceptorStacks);
+            Map<String, Collection<Endpoint>> ends = service.getEndpoints().asMap();
+            for (Map.Entry<String, Collection<Endpoint>> entry : ends.entrySet()) {
+                if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+                    MonitorRuntime.getInstance().initEndPoint(service.getName(), entry.getValue().iterator().next().getName());
+                }
+            }
+        }
     }
 
     protected Service loadService(ServiceConfig config, Map<String, InterceptorMapping> interceptors, Map<String, InterceptorStackConfig> interceptorStatcks) {
