@@ -43,4 +43,11 @@ public @interface Service {
      */
     String description() default "";
 
+
+    /**
+     * 是否开启athena事务
+     * @return
+     */
+    boolean athenaTransactionFlag() default true;
+
 }

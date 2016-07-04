@@ -381,165 +381,23 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
 	                    return;
 	                }
                 }
-                
-                final Map<String, Object> paramters = request.parameterMap;// convertService.convert(request.parameterMap,
-                                                                           // endpoint.getParameterTypeDict());
-                final AbstractServiceRequestPacket requestFinal = request;
-                final ResultType resultTypeFinal = resultType;
-                final RemotingInvocationListener<Serializable> invocationListenerFinal = invocationListener;
-                final VenusRouterPacket finalRouterPacket = routerPacket;
-                final byte[] traceID = request.traceId;
-                
-                class ServiceRunnable extends MultiQueueRunnable {
-                    @Override
-                    public void doRun() {
-                    	AbstractServicePacket resultPacket = null;
-                    	boolean isError = false;
-                        long startRunTime = TimeUtil.currentTimeMillis();
-                        Response result = null;
-                        if (conn.isClosed() && resultTypeFinal == ResultType.RESPONSE) {
-                            return;
-                        }
-                        try {
-                            RequestContext context = createContext(getRequestInfo(packetSerializeType, conn, finalRouterPacket, requestFinal), conn,
-                                    endpoint, paramters);
-                            ThreadLocalMap.put(VenusTracerUtil.REQUEST_TRACE_ID, traceID);
-                            ThreadLocalMap.put(ThreadLocalConstant.REQUEST_CONTEXT, context);
-                            
-                            if(filter != null){
-                            	filter.before(requestFinal);
-                            }
-                            // invoke service endpoint
-                            result = handleRequest(context, conn, endpoint);
 
-                            if (result.getErrorCode() == 0) {
-                                if (resultTypeFinal == ResultType.RESPONSE) {
-                                    Serializer serializer = SerializerFactory.getSerializer(packetSerializeType);
-                                    ServiceResponsePacket response = new SerializeServiceResponsePacket(serializer, endpoint.getMethod()
-                                            .getGenericReturnType());
-                                    AbstractServicePacket.copyHead(requestFinal, response);
-                                    response.result = result.getResult();
-                                    resultPacket = response;
-                                    postMessageBack(conn, finalRouterPacket, requestFinal, response);
-                                } else if (resultTypeFinal == ResultType.OK) {
-                                    OKPacket ok = new OKPacket();
-                                    AbstractServicePacket.copyHead(requestFinal, ok);
-                                    resultPacket = ok;
-                                    postMessageBack(conn, finalRouterPacket, requestFinal, ok);
-                                } else if (resultTypeFinal == ResultType.NOTIFY) {
-                                    if (invocationListenerFinal != null && !invocationListenerFinal.isResponsed()) {
-                                        invocationListenerFinal.onException(new ServiceNotCallbackException("Server side not call back error"));
-                                    }
-                                }
-                            } else {
-                                if (resultTypeFinal == ResultType.RESPONSE || resultTypeFinal == ResultType.OK) {
-                                    ErrorPacket error = new ErrorPacket();
-                                    AbstractServicePacket.copyHead(requestFinal, error);
-                                    error.errorCode = result.getErrorCode();
-                                    error.message = result.getErrorMessage();
-                                    Throwable throwable = result.getException();
-                                    if (throwable != null) {
-                                        Serializer serializer = SerializerFactory.getSerializer(packetSerializeType);
-                                        Map<String, PropertyDescriptor> mpd = Utils.getBeanPropertyDescriptor(throwable.getClass());
-                                        Map<String, Object> additionalData = new HashMap<String, Object>();
+                RequestHandler requestHandler = new RequestHandler();
 
-                                        for (Map.Entry<String, PropertyDescriptor> entry : mpd.entrySet()) {
-                                            additionalData.put(entry.getKey(), entry.getValue().getReadMethod().invoke(throwable));
-                                        }
-                                        error.additionalData = serializer.encode(additionalData);
-                                    }
-                                    resultPacket = error;
-                                    postMessageBack(conn, finalRouterPacket, requestFinal, error);
-                                } else if (resultTypeFinal == ResultType.NOTIFY) {
-                                    if (invocationListenerFinal != null && !invocationListenerFinal.isResponsed()) {
-                                        if (result.getException() == null) {
-                                            invocationListenerFinal.onException(new DefaultVenusException(result.getErrorCode(), result.getErrorMessage()));
-                                        } else {
-                                            invocationListenerFinal.onException(result.getException());
-                                        }
-                                    }
-                                }
-                            }
+                RequestInfo requestInfo = requestHandler.getRequestInfo(packetSerializeType, conn, routerPacket);
+                RequestContext context = requestHandler.createContext(requestInfo, endpoint, request);
 
-                        } catch (Exception e) {
-                            ErrorPacket error = new ErrorPacket();
-                            AbstractServicePacket.copyHead(requestFinal, error);
-                            Integer code = codeMap.get(e.getClass());
-                            if(code != null){
-                                error.errorCode = code;
-                            }else{
-                                if (e instanceof CodedException) {
-                                    CodedException codeEx = (CodedException) e;
-                                    error.errorCode = codeEx.getErrorCode();
-                                    if (logger.isDebugEnabled()) {
-                                        logger.debug("error when invoke", e);
-                                    }
-                                } else {
-                                    try {
-                                        Method method = e.getClass().getMethod("getErrorCode", new Class[] {});
-                                        int i = (Integer) method.invoke(e);
-                                        error.errorCode = i;
-                                        if (logger.isDebugEnabled()) {
-                                            logger.debug("error when invoke", e);
-                                        }
-                                    } catch (Exception e1) {
-                                        error.errorCode = VenusExceptionCodeConstant.UNKNOW_EXCEPTION;
-                                        if (logger.isWarnEnabled()) {
-                                            logger.warn("error when invoke", e);
-                                        }
-                                    }
-                                }
-                            }
-                            resultPacket = error;
-                            error.message = e.getMessage();
-                            postMessageBack(conn, finalRouterPacket, requestFinal, error);
-
-                            return;
-                        }catch(OutOfMemoryError e){
-                        	ErrorPacket error = new ErrorPacket();
-                            AbstractServicePacket.copyHead(requestFinal, error);
-                            error.errorCode = VenusExceptionCodeConstant.SERVICE_UNAVAILABLE_EXCEPTION;
-                            error.message = e.getMessage();
-                            resultPacket = error;
-                            postMessageBack(conn, finalRouterPacket, requestFinal, error);
-                            VenusStatus.getInstance().setStatus(PacketConstant.VENUS_STATUS_OUT_OF_MEMORY);
-                            logger.error("error when invoke", e);
-                        	throw e;
-                        }catch (Error e) {
-                            ErrorPacket error = new ErrorPacket();
-                            AbstractServicePacket.copyHead(requestFinal, error);
-                            error.errorCode = VenusExceptionCodeConstant.SERVICE_UNAVAILABLE_EXCEPTION;
-                            error.message = e.getMessage();
-                            resultPacket = error;
-                            postMessageBack(conn, finalRouterPacket, requestFinal, error);
-                            logger.error("error when invoke", e);
-                            return;
-                        } finally {
-                            long endRunTime = TimeUtil.currentTimeMillis();
-
-                            long queuedTime = startRunTime - data.left;
-                            long executTime = endRunTime - startRunTime;
-                            MonitorRuntime.getInstance().calculateAverage(endpoint.getService().getName(), endpoint.getName(), executTime,false);
-                            logPerformance(endpoint,UUID.toString(traceID),apiName,queuedTime,executTime,conn.getHost(),finalSourceIp,requestFinal.clientId,requestFinal.clientRequestId,requestFinal.parameterMap,result);
-                            if(filter != null){
-    	                    	filter.after(resultPacket);
-    	                    }
-                            ThreadLocalMap.remove(ThreadLocalConstant.REQUEST_CONTEXT);
-                            ThreadLocalMap.remove(VenusTracerUtil.REQUEST_TRACE_ID);
-                        }
-
-                    }
-
-                    @Override
-                    public String getName() {
-                        return apiName;
-                    }
-                }
+                ServiceRunnable runnable = new ServiceRunnable(conn, endpoint,
+                        context, resultType,
+                        filter, routerPacket,
+                        request, serializeType,
+                        invocationListener, venusExceptionFactory,
+                        data);
 
                 if (executor == null) {
-                    new ServiceRunnable().run();
+                    runnable.run();
                 } else {
-                    executor.execute(new ServiceRunnable());
+                    executor.execute(runnable);
                 }
 
                 break;
@@ -733,125 +591,6 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
             error.message = "Service=" + endpoint.getService().getName() + ",version=" + request.serviceVersion + " not allow";
             return error;
         }
-    }
-
-    protected RequestContext createContext(RequestInfo info, Connection conn, Endpoint endpoint, Map<String, Object> paramters) {
-        RequestContext context = new RequestContext();
-        context.setParameters(paramters);
-        context.setEndPointer(endpoint);
-        context.setRequestInfo(info);
-        return context;
-    }
-
-    private Response handleRequest(RequestContext context, Connection conn, Endpoint endpoint) {
-
-        Response response = new Response();
-
-        DefaultEndpointInvocation invocation = new DefaultEndpointInvocation(context, endpoint);
-
-        try {
-            //UtilTimerStack.push(ENDPOINT_INVOKED_TIME);
-            response.setResult(invocation.invoke());
-        } catch (Throwable e) {
-            if (e instanceof ServiceInvokeException) {
-                e = ((ServiceInvokeException) e).getTargetException();
-            }
-            if (e instanceof Exception) {
-                response.setException((Exception) e);
-            } else {
-                response.setException(new DefaultVenusException(e.getMessage(), e));
-            }
-            
-            Integer code = codeMap.get(e.getClass());
-            
-            if(code != null){
-                response.setErrorCode(code);
-                response.setErrorMessage(e.getMessage());
-            }else{
-                if (e instanceof CodedException) {
-                    response.setErrorCode(((CodedException) e).getErrorCode());
-                    response.setErrorMessage(((CodedException) e).getMessage());
-                } else {
-                    int errorCode = 0;
-                    if (venusExceptionFactory != null) {
-                        errorCode = venusExceptionFactory.getErrorCode(e.getClass());
-                        if (errorCode != 0) {
-                            response.setErrorCode(errorCode);
-                        } else {
-                            // unknowable exception
-                            response.setErrorCode(VenusExceptionCodeConstant.UNKNOW_EXCEPTION);
-                        }
-                    } else {
-                        // unknowable exception
-                        response.setErrorCode(VenusExceptionCodeConstant.UNKNOW_EXCEPTION);
-                    }
-
-                    if (e instanceof NullPointerException && e.getMessage() == null) {
-                        response.setErrorMessage("Server Side error caused by NullPointerException");
-                    } else {
-                        response.setErrorMessage(e.getMessage());
-                    }
-                }
-            }
-            
-            Service service = endpoint.getService();
-            if (e instanceof VenusExceptionLevel) {
-                if (((VenusExceptionLevel) e).getLevel() != null) {
-                    logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), INVOKER_LOGGER, e.getMessage() + " " + context.getRequestInfo().getRemoteIp() + " "
-                            + service.getName() + ":" + endpoint.getMethod().getName() + " " + Utils.toString(context.getParameters()), e);
-                }
-            } else {
-                if (e instanceof RuntimeException && !(e instanceof CodedException)) {
-                	INVOKER_LOGGER.error(e.getMessage() + " " + context.getRequestInfo().getRemoteIp() + " " + service.getName() + ":" + endpoint.getMethod().getName()
-                            + " " + Utils.toString(context.getParameters()), e);
-                } else {
-                    if (endpoint.isAsync()) {
-                        if (INVOKER_LOGGER.isErrorEnabled()) {
-
-                        	INVOKER_LOGGER.error(e.getMessage() + " " + context.getRequestInfo().getRemoteIp() + " " + service.getName() + ":"
-                                    + endpoint.getMethod().getName() + " " + Utils.toString(context.getParameters()), e);
-                        }
-                    } else {
-                        if (INVOKER_LOGGER.isDebugEnabled()) {
-                        	INVOKER_LOGGER.debug(e.getMessage() + " " + context.getRequestInfo().getRemoteIp() + " " + service.getName() + ":"
-                                    + endpoint.getMethod().getName() + " " + Utils.toString(context.getParameters()), e);
-                        }
-                    }
-                }
-            }
-        } finally {
-            UtilTimerStack.pop(ENDPOINT_INVOKED_TIME);
-        }
-
-        return response;
-    }
-
-    /**
-     * extract request info from connection and packet
-     * 
-     * @param conn
-     * @param packet
-     * @return
-     */
-    private RequestInfo getRequestInfo(byte packetSerializeType, VenusFrontendConnection conn, VenusRouterPacket routerPacket,
-            AbstractServiceRequestPacket packet) {
-        RequestInfo info = new RequestInfo();
-        if (routerPacket != null) {
-            info.setRemoteIp(InetAddressUtil.intToAddress(routerPacket.srcIP));
-        } else {
-            info.setRemoteIp(conn.getHost());
-        }
-        info.setProtocol(RequestInfo.Protocol.SOCKET);
-        info.setClientId(conn.getClientId());
-        if (packetSerializeType == PacketConstant.CONTENT_TYPE_JSON) {
-            info.setAccept(MediaTypes.APPLICATION_JSON);
-        } else if (packetSerializeType == PacketConstant.CONTENT_TYPE_BSON) {
-            // info.setAccept(MediaTypes.APPLICATION_XML);
-        } else if (packetSerializeType == PacketConstant.CONTENT_TYPE_OBJECT) {
-            info.setAccept(MediaTypes.APPLICATION_XML);
-        }
-
-        return info;
     }
 
     @Override

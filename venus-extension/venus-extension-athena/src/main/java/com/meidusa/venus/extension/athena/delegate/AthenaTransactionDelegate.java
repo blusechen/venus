@@ -45,4 +45,16 @@ public class AthenaTransactionDelegate {
         }
     }
 
+    public void startServerTransaction(AthenaTransactionId transactionId, String itemName) {
+        if (serverTransactionReporter != null) {
+            serverTransactionReporter.startTransaction(transactionId, itemName);
+        }
+    }
+
+    public void completeServerTransaction(){
+        if (serverTransactionReporter != null) {
+            serverTransactionReporter.commit();
+        }
+    }
+
 }

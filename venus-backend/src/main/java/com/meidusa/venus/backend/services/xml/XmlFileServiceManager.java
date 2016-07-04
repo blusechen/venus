@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.meidusa.venus.backend.network.handler.CodeMapScanner;
 import com.meidusa.venus.extension.athena.AthenaExtensionResolver;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
@@ -87,6 +88,7 @@ public class XmlFileServiceManager extends AbstractServiceManager implements Ini
         BeanContextBean.getInstance().setBeanContext(beanContext);
         VenusBeanUtilsBean.setInstance(new BackendBeanUtilsBean(new ConvertUtilsBean(), new PropertyUtilsBean(), beanContext));
         AthenaExtensionResolver.getInstance().resolver();
+        CodeMapScanner.getCodeMap();
 
         List<ServiceConfig> serviceConfigList = new ArrayList<ServiceConfig>();
         Map<String, InterceptorMapping> interceptors = new HashMap<String, InterceptorMapping>();

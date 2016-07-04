@@ -1,19 +1,26 @@
 package com.meidusa.venus.backend.http;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.meidusa.fastjson.JSONException;
+import com.meidusa.toolkit.util.TimeUtil;
+import com.meidusa.venus.backend.DefaultEndpointInvocation;
+import com.meidusa.venus.backend.RequestInfo;
+import com.meidusa.venus.backend.Response;
+import com.meidusa.venus.backend.context.RequestContext;
+import com.meidusa.venus.backend.network.handler.LogHandler;
+import com.meidusa.venus.backend.profiling.UtilTimerStack;
+import com.meidusa.venus.backend.services.Endpoint;
+import com.meidusa.venus.backend.services.Service;
+import com.meidusa.venus.backend.services.ServiceManager;
+import com.meidusa.venus.backend.view.MediaTypes;
+import com.meidusa.venus.convert.ConvertService;
+import com.meidusa.venus.convert.DefaultConvertService;
+import com.meidusa.venus.exception.*;
+import com.meidusa.venus.io.packet.PacketConstant;
+import com.meidusa.venus.io.serializer.Serializer;
+import com.meidusa.venus.io.serializer.SerializerFactory;
+import com.meidusa.venus.service.monitor.MonitorRuntime;
+import com.meidusa.venus.util.Range;
+import com.meidusa.venus.util.Utils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,31 +30,18 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.servlet.FrameworkServlet;
 
-import com.meidusa.fastjson.JSONException;
-import com.meidusa.toolkit.util.TimeUtil;
-import com.meidusa.venus.backend.DefaultEndpointInvocation;
-import com.meidusa.venus.backend.RequestInfo;
-import com.meidusa.venus.backend.Response;
-import com.meidusa.venus.backend.context.RequestContext;
-import com.meidusa.venus.backend.profiling.UtilTimerStack;
-import com.meidusa.venus.backend.services.Endpoint;
-import com.meidusa.venus.backend.services.Service;
-import com.meidusa.venus.backend.services.ServiceManager;
-import com.meidusa.venus.backend.view.MediaTypes;
-import com.meidusa.venus.convert.ConvertService;
-import com.meidusa.venus.convert.DefaultConvertService;
-import com.meidusa.venus.exception.CodedException;
-import com.meidusa.venus.exception.ExceptionLevel;
-import com.meidusa.venus.exception.ServiceInvokeException;
-import com.meidusa.venus.exception.VenusExceptionCodeConstant;
-import com.meidusa.venus.exception.VenusExceptionFactory;
-import com.meidusa.venus.exception.VenusExceptionLevel;
-import com.meidusa.venus.io.packet.PacketConstant;
-import com.meidusa.venus.io.serializer.Serializer;
-import com.meidusa.venus.io.serializer.SerializerFactory;
-import com.meidusa.venus.service.monitor.MonitorRuntime;
-import com.meidusa.venus.util.Range;
-import com.meidusa.venus.util.Utils;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class VenusHttpServlet extends HttpServlet {
     private static Logger logger = LoggerFactory.getLogger(VenusHttpServlet.class);
@@ -185,7 +179,7 @@ public class VenusHttpServlet extends HttpServlet {
 
             if (e instanceof VenusExceptionLevel) {
                 if (((VenusExceptionLevel) e).getLevel() != null) {
-                    logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), logger,
+                    LogHandler.logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), logger,
                             e.getMessage() + " client:{clientID=" + clientID + ",ip=" + req.getRemoteAddr() + ", apiName=" + service + "." + method + "}", e);
                 }
             } else {
@@ -244,27 +238,7 @@ public class VenusHttpServlet extends HttpServlet {
 
     }
 
-    private void logDependsOnLevel(ExceptionLevel level, Logger specifiedLogger, String msg, Throwable e) {
-        switch (level) {
-            case DEBUG:
-                specifiedLogger.debug(msg, e);
-                break;
-            case INFO:
-                specifiedLogger.info(msg, e);
-                break;
-            case TRACE:
-                specifiedLogger.trace(msg, e);
-                break;
-            case WARN:
-                specifiedLogger.warn(msg, e);
-                break;
-            case ERROR:
-                specifiedLogger.error(msg, e);
-                break;
-            default:
-                break;
-        }
-    }
+
 
     private static Response checkActive(Endpoint endpoint) {
         Service service = endpoint.getService();
@@ -348,7 +322,7 @@ public class VenusHttpServlet extends HttpServlet {
             Service service = endpoint.getService();
             if (e instanceof VenusExceptionLevel) {
                 if (((VenusExceptionLevel) e).getLevel() != null) {
-                    logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), logger, e.getMessage() + ",ip=" + context.getRequestInfo().getRemoteIp() + " ,api="
+                    LogHandler.logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), logger, e.getMessage() + ",ip=" + context.getRequestInfo().getRemoteIp() + " ,api="
                             + service.getName() + "." + endpoint.getMethod().getName() + " , params=" + Utils.toString(context.getParameters()), e);
                 }
             } else {
@@ -372,8 +346,6 @@ public class VenusHttpServlet extends HttpServlet {
     /**
      * extract request info from connection and packet
      * 
-     * @param conn
-     * @param packet
      * @return
      */
     private RequestInfo getRequestInfo(final HttpServletRequest req) {

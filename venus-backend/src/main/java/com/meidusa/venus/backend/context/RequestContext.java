@@ -21,7 +21,7 @@ public class RequestContext {
      */
     private String traceId;
     private String rootId;
-    private String currentId;
+    private String parentId;
     private String messageId;
 
     public String getTraceId() {
@@ -40,12 +40,12 @@ public class RequestContext {
         this.rootId = rootId;
     }
 
-    public String getCurrentId() {
-        return currentId;
+    public String getParentId() {
+        return parentId;
     }
 
-    public void setCurrentId(String currentId) {
-        this.currentId = currentId;
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
 
     public String getMessageId() {
