@@ -14,6 +14,7 @@ import com.meidusa.venus.backend.services.Service;
 import com.meidusa.venus.exception.*;
 import com.meidusa.venus.extension.athena.AthenaServerTransaction;
 import com.meidusa.venus.extension.athena.AthenaTransactionId;
+import com.meidusa.venus.extension.athena.delegate.AthenaReporterDelegate;
 import com.meidusa.venus.extension.athena.delegate.AthenaTransactionDelegate;
 import com.meidusa.venus.io.ServiceFilter;
 import com.meidusa.venus.io.network.VenusFrontendConnection;
@@ -87,6 +88,8 @@ public class ServiceRunnable extends MultiQueueRunnable {
 
     @Override
     public void doRun() {
+
+        AthenaReporterDelegate.getDelegate().metric(apiName + ".invoke");
 
         AthenaTransactionId transactionId = new AthenaTransactionId();
         transactionId.setRootId(context.getRootId());
@@ -162,7 +165,11 @@ public class ServiceRunnable extends MultiQueueRunnable {
                 }
             }
 
+            AthenaReporterDelegate.getDelegate().metric(apiName + ".complete");
+
+
         } catch (Exception e) {
+            AthenaReporterDelegate.getDelegate().metric(apiName + ".error");
             ErrorPacket error = new ErrorPacket();
             AbstractServicePacket.copyHead(request, error);
             Integer code = CodeMapScanner.getCodeMap().get(e.getClass());
