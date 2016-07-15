@@ -129,7 +129,7 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
 
 
         AthenaTransactionId athenaTransactionId = null;
-        if (service.athenaTransactionFlag()) {
+        if (service.athenaFlag()) {
             athenaTransactionId = AthenaTransactionDelegate.getDelegate().startClientTransaction(apiName);
         }
         boolean async = false;
@@ -143,16 +143,18 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
         if (traceID == null) {
             traceID = VenusTracerUtil.randomTracerID();
         }        
-        SerializeServiceRequestPacket serviceRequestPacket = null;
 
         Serializer serializer = SerializerFactory.getSerializer(serializeType);
-        serviceRequestPacket = new SerializeServiceRequestPacket(serializer, null);
+
+        SerializeServiceRequestPacket serviceRequestPacket = new SerializeServiceRequestPacket(serializer, null);
+
         serviceRequestPacket.clientId = PacketConstant.VENUS_CLIENT_ID;
         serviceRequestPacket.clientRequestId = sequenceId.getAndIncrement();
         serviceRequestPacket.traceId = traceID;
         serviceRequestPacket.apiName = apiName;
         serviceRequestPacket.serviceVersion = service.version();
         serviceRequestPacket.parameterMap = new HashMap<String, Object>();
+
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
                 if (args[i] instanceof InvocationListener) {
@@ -177,20 +179,7 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
 
             }
         }
-
-        if (athenaTransactionId != null) {
-            if (athenaTransactionId.getRootId() != null) {
-                serviceRequestPacket.rootId = athenaTransactionId.getRootId().getBytes();
-            }
-
-            if (athenaTransactionId.getParentId() != null) {
-                serviceRequestPacket.parentId = athenaTransactionId.getParentId().getBytes();
-            }
-
-            if (athenaTransactionId.getMessageId() != null) {
-                serviceRequestPacket.messageId = athenaTransactionId.getMessageId().getBytes();
-            }
-        }
+        setTransactionId(serviceRequestPacket, athenaTransactionId);
 
         PerformanceLevel pLevel = AnnotationUtil.getAnnotation(method.getAnnotations(), PerformanceLevel.class);
         long start = TimeUtil.currentTimeMillis();
@@ -215,7 +204,7 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                 VenusTracerUtil.logRequest(traceID, serviceRequestPacket.apiName, JSON.toJSONString(serviceRequestPacket.parameterMap,JSON_FEATURE));
                 return null;
             } finally {
-                if (service.athenaTransactionFlag()) {
+                if (service.athenaFlag()) {
                     AthenaTransactionDelegate.getDelegate().completeClientTransaction();
                 }
                 if (performanceLogger.isDebugEnabled()) {
@@ -275,7 +264,7 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                     }
                 }
                 
-                byte[] bts = null;
+                byte[] bts;
                 
                 try {
                 
@@ -332,10 +321,7 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                         packet = ok;
                         return null;
                     case PacketConstant.PACKET_TYPE_SERVICE_RESPONSE:
-                        ServiceResponsePacket response = null;
-
-                        response = new SerializeServiceResponsePacket(serializer, method.getGenericReturnType());
-
+                        ServiceResponsePacket response = new SerializeServiceResponsePacket(serializer, method.getGenericReturnType());
                         response.init(bts);
                         packet = response;
                         return response.result;
@@ -374,7 +360,7 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                     }
                 }
             } finally {
-                if (service.athenaTransactionFlag()) {
+                if (service.athenaFlag()) {
                     AthenaTransactionDelegate.getDelegate().completeClientTransaction();
                 }
                 long end = TimeUtil.currentTimeMillis();
@@ -451,6 +437,22 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                     bioConnPool.returnObject(conn);
                 }
 
+            }
+        }
+    }
+
+    private void setTransactionId(SerializeServiceRequestPacket serviceRequestPacket, AthenaTransactionId athenaTransactionId) {
+        if (athenaTransactionId != null) {
+            if (athenaTransactionId.getRootId() != null) {
+                serviceRequestPacket.rootId = athenaTransactionId.getRootId().getBytes();
+            }
+
+            if (athenaTransactionId.getParentId() != null) {
+                serviceRequestPacket.parentId = athenaTransactionId.getParentId().getBytes();
+            }
+
+            if (athenaTransactionId.getMessageId() != null) {
+                serviceRequestPacket.messageId = athenaTransactionId.getMessageId().getBytes();
             }
         }
     }

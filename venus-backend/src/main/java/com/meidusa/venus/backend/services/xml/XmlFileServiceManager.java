@@ -224,6 +224,8 @@ public class XmlFileServiceManager extends AbstractServiceManager implements Ini
         	logger.error("Service annotation not found in class="+type.getClass());
         	throw new VenusConfigException("Service annotation not found in class="+type.getClass());
         }
+
+        service.setAthenaFlag(serviceAnnotation.athenaFlag());
         
         if (!serviceAnnotation.name().isEmpty()) {
             service.setName(serviceAnnotation.name());

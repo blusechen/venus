@@ -26,12 +26,22 @@ public abstract class Service {
 
     private String description;
 
+    private boolean athenaFlag;
+
     public Range getVersionRange() {
         return versionRange;
     }
 
     public void setVersionRange(Range versionRange) {
         this.versionRange = versionRange;
+    }
+
+    public void setAthenaFlag(boolean athenaFlag) {
+        this.athenaFlag = athenaFlag;
+    }
+
+    public boolean getAthenaFlag(){
+        return this.athenaFlag;
     }
 
     /**

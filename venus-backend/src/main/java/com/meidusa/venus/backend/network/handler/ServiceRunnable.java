@@ -12,6 +12,7 @@ import com.meidusa.venus.backend.profiling.UtilTimerStack;
 import com.meidusa.venus.backend.services.Endpoint;
 import com.meidusa.venus.backend.services.Service;
 import com.meidusa.venus.exception.*;
+import com.meidusa.venus.extension.athena.AthenaProblemReporter;
 import com.meidusa.venus.extension.athena.AthenaServerTransaction;
 import com.meidusa.venus.extension.athena.AthenaTransactionId;
 import com.meidusa.venus.extension.athena.delegate.AthenaReporterDelegate;
@@ -62,7 +63,8 @@ public class ServiceRunnable extends MultiQueueRunnable {
     private String apiName;
     private String sourceIp;
 
-    public ServiceRunnable(VenusFrontendConnection conn, Endpoint endpoint, RequestContext context, EndpointInvocation.ResultType resultType, ServiceFilter filter,
+    public ServiceRunnable(VenusFrontendConnection conn, Endpoint endpoint,
+                           RequestContext context, EndpointInvocation.ResultType resultType, ServiceFilter filter,
                            VenusRouterPacket routerPacket, SerializeServiceRequestPacket request,
                            short serializeType, RemotingInvocationListener<Serializable> invocationListener,
                            VenusExceptionFactory venusExceptionFactory, Tuple<Long, byte[]> data) {
@@ -88,15 +90,17 @@ public class ServiceRunnable extends MultiQueueRunnable {
 
     @Override
     public void doRun() {
+        boolean athenaFlag = endpoint.getService().getAthenaFlag();
+        if (athenaFlag) {
+            AthenaReporterDelegate.getDelegate().metric(apiName + ".invoke");
+            AthenaTransactionId transactionId = new AthenaTransactionId();
+            transactionId.setRootId(context.getRootId());
+            transactionId.setParentId(context.getParentId());
+            transactionId.setMessageId(context.getMessageId());
+            AthenaTransactionDelegate.getDelegate().startServerTransaction(transactionId, apiName);
+        }
 
-        AthenaReporterDelegate.getDelegate().metric(apiName + ".invoke");
 
-        AthenaTransactionId transactionId = new AthenaTransactionId();
-        transactionId.setRootId(context.getRootId());
-        transactionId.setParentId(context.getParentId());
-        transactionId.setMessageId(context.getMessageId());
-
-        AthenaTransactionDelegate.getDelegate().startServerTransaction(transactionId, apiName);
         AbstractServicePacket resultPacket = null;
         ResponseHandler responseHandler = new ResponseHandler();
         long startRunTime = TimeUtil.currentTimeMillis();
@@ -165,11 +169,15 @@ public class ServiceRunnable extends MultiQueueRunnable {
                 }
             }
 
-            AthenaReporterDelegate.getDelegate().metric(apiName + ".complete");
+            if(athenaFlag) {
+                AthenaReporterDelegate.getDelegate().metric(apiName + ".complete");
+            }
 
 
         } catch (Exception e) {
-            AthenaReporterDelegate.getDelegate().metric(apiName + ".error");
+            if (athenaFlag) {
+                AthenaReporterDelegate.getDelegate().metric(apiName + ".error");
+            }
             ErrorPacket error = new ErrorPacket();
             AbstractServicePacket.copyHead(request, error);
             Integer code = CodeMapScanner.getCodeMap().get(e.getClass());
@@ -223,12 +231,14 @@ public class ServiceRunnable extends MultiQueueRunnable {
             logger.error("error when invoke", e);
             return;
         } finally {
-            AthenaTransactionDelegate.getDelegate().completeServerTransaction();
+            if (athenaFlag) {
+                AthenaTransactionDelegate.getDelegate().completeServerTransaction();
+            }
             long endRunTime = TimeUtil.currentTimeMillis();
             long queuedTime = startRunTime - data.left;
             long executeTime = endRunTime - startRunTime;
-            if (endpoint.getTimeWait() < (queuedTime + executeTime)) {
-                //VenusMonitorDelegate.getInstance().reportMetric(VenusMonitorDelegate.getExecuteTimeoutKey(request.apiName), MonitorConstants.metricCount);
+            if ((endpoint.getTimeWait() < (queuedTime + executeTime)) && athenaFlag) {
+                AthenaReporterDelegate.getDelegate().metric(apiName + ".timeout");
             }
             MonitorRuntime.getInstance().calculateAverage(endpoint.getService().getName(), endpoint.getName(), executeTime, false);
             PerformanceHandler.logPerformance(endpoint, request, queuedTime, executeTime, conn.getHost(), sourceIp, result);
@@ -255,6 +265,8 @@ public class ServiceRunnable extends MultiQueueRunnable {
             UtilTimerStack.push(ENDPOINT_INVOKED_TIME);
             response.setResult(invocation.invoke());
         } catch (Throwable e) {
+            System.out.println("upload problem" + e);
+            AthenaReporterDelegate.getDelegate().problem(e.getMessage(), e);
             //VenusMonitorDelegate.getInstance().reportError(e.getMessage(), e);
             if (e instanceof ServiceInvokeException) {
                 e = ((ServiceInvokeException) e).getTargetException();

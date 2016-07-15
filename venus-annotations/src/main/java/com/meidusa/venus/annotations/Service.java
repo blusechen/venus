@@ -45,9 +45,9 @@ public @interface Service {
 
 
     /**
-     * 是否开启athena事务
+     * 是否开启athena
      * @return
      */
-    boolean athenaTransactionFlag() default true;
+    boolean athenaFlag() default true;
 
 }
