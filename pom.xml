@@ -388,9 +388,9 @@
 			<url>http://maven.hexnova.com/nexus/content/repositories/release-open</url>
 		</repository>
 		<snapshotRepository>
-			<id>saic-release</id>
+			<id>hexnova-snapshot</id>
 			<name>Internal snapshots</name>
-			<url>http://maven.dds.com/nexus/content/repositories/snapshot-open</url>
+			<url>http://maven.hexnova.com/nexus/content/repositories/release-open</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<repositories>

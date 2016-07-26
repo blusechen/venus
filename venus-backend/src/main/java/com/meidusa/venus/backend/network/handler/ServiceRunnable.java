@@ -98,6 +98,7 @@ public class ServiceRunnable extends MultiQueueRunnable {
             transactionId.setParentId(context.getParentId());
             transactionId.setMessageId(context.getMessageId());
             AthenaTransactionDelegate.getDelegate().startServerTransaction(transactionId, apiName);
+            AthenaTransactionDelegate.getDelegate().setServerInputSize(data.right.length);
         }
 
 
@@ -128,12 +129,12 @@ public class ServiceRunnable extends MultiQueueRunnable {
                     AbstractServicePacket.copyHead(request, response);
                     response.result = result.getResult();
                     resultPacket = response;
-                    responseHandler.postMessageBack(conn, routerPacket, request, response);
+                    responseHandler.postMessageBack(conn, routerPacket, request, response, athenaFlag);
                 } else if (resultType == EndpointInvocation.ResultType.OK) {
                     OKPacket ok = new OKPacket();
                     AbstractServicePacket.copyHead(request, ok);
                     resultPacket = ok;
-                    responseHandler.postMessageBack(conn, routerPacket, request, ok);
+                    responseHandler.postMessageBack(conn, routerPacket, request, ok, athenaFlag);
                 } else if (resultType == EndpointInvocation.ResultType.NOTIFY) {
                     if (invocationListener != null && !invocationListener.isResponsed()) {
                         invocationListener.onException(new ServiceNotCallbackException("Server side not call back error"));
@@ -157,7 +158,7 @@ public class ServiceRunnable extends MultiQueueRunnable {
                         error.additionalData = serializer.encode(additionalData);
                     }
                     resultPacket = error;
-                    responseHandler.postMessageBack(conn, routerPacket, request, error);
+                    responseHandler.postMessageBack(conn, routerPacket, request, error, athenaFlag);
                 } else if (resultType == EndpointInvocation.ResultType.NOTIFY) {
                     if (invocationListener != null && !invocationListener.isResponsed()) {
                         if (result.getException() == null) {
@@ -208,7 +209,7 @@ public class ServiceRunnable extends MultiQueueRunnable {
             }
             resultPacket = error;
             error.message = e.getMessage();
-            responseHandler.postMessageBack(conn, routerPacket, request, error);
+            responseHandler.postMessageBack(conn, routerPacket, request, error, athenaFlag);
 
             return;
         } catch (OutOfMemoryError e) {
@@ -217,7 +218,7 @@ public class ServiceRunnable extends MultiQueueRunnable {
             error.errorCode = VenusExceptionCodeConstant.SERVICE_UNAVAILABLE_EXCEPTION;
             error.message = e.getMessage();
             resultPacket = error;
-            responseHandler.postMessageBack(conn, routerPacket, request, error);
+            responseHandler.postMessageBack(conn, routerPacket, request, error, athenaFlag);
             VenusStatus.getInstance().setStatus(PacketConstant.VENUS_STATUS_OUT_OF_MEMORY);
             logger.error("error when invoke", e);
             throw e;
@@ -227,7 +228,7 @@ public class ServiceRunnable extends MultiQueueRunnable {
             error.errorCode = VenusExceptionCodeConstant.SERVICE_UNAVAILABLE_EXCEPTION;
             error.message = e.getMessage();
             resultPacket = error;
-            responseHandler.postMessageBack(conn, routerPacket, request, error);
+            responseHandler.postMessageBack(conn, routerPacket, request, error, athenaFlag);
             logger.error("error when invoke", e);
             return;
         } finally {
@@ -265,7 +266,7 @@ public class ServiceRunnable extends MultiQueueRunnable {
             UtilTimerStack.push(ENDPOINT_INVOKED_TIME);
             response.setResult(invocation.invoke());
         } catch (Throwable e) {
-            System.out.println("upload problem" + e);
+            //System.out.println("upload problem" + e);
             AthenaReporterDelegate.getDelegate().problem(e.getMessage(), e);
             //VenusMonitorDelegate.getInstance().reportError(e.getMessage(), e);
             if (e instanceof ServiceInvokeException) {

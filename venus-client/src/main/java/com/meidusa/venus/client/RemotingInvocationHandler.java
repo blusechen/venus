@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -199,8 +200,11 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                     conn = nioConnPool.borrowObject();
                 }
                 borrowed = TimeUtil.currentTimeMillis();
-
-                conn.write(serviceRequestPacket.toByteBuffer());
+                ByteBuffer buffer = serviceRequestPacket.toByteBuffer();
+                if(service.athenaFlag()) {
+                    AthenaTransactionDelegate.getDelegate().setClientOutputSize(buffer.limit());
+                }
+                conn.write(buffer);
                 VenusTracerUtil.logRequest(traceID, serviceRequestPacket.apiName, JSON.toJSONString(serviceRequestPacket.parameterMap,JSON_FEATURE));
                 return null;
             } finally {
@@ -271,9 +275,17 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                 	if (soTimeout > 0) {
                 		conn.setSoTimeout(soTimeout);
                 	}
-                    conn.write(serviceRequestPacket.toByteArray());
+
+                    byte[] buff = serviceRequestPacket.toByteArray();
+                    if(service.athenaFlag() && buff != null) {
+                        AthenaTransactionDelegate.getDelegate().setClientOutputSize(buff.length);
+                    }
+                    conn.write(buff);
                     VenusTracerUtil.logRequest(traceID, serviceRequestPacket.apiName, JSON.toJSONString(serviceRequestPacket.parameterMap,JSON_FEATURE));
                     bts = conn.read();
+                    if(service.athenaFlag() && bts != null) {
+                        AthenaTransactionDelegate.getDelegate().setClientInputSize(bts.length);
+                    }
                 }catch(IOException e){
                 	try {
                         conn.close();

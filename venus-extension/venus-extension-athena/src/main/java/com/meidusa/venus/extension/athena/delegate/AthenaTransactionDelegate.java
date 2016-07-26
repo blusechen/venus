@@ -57,4 +57,28 @@ public class AthenaTransactionDelegate {
         }
     }
 
+    public void setServerInputSize(long size) {
+        if (serverTransactionReporter != null) {
+            serverTransactionReporter.setInputSize(size);
+        }
+    }
+
+    public void setServerOutputSize(long size) {
+        if (serverTransactionReporter != null) {
+            serverTransactionReporter.setOutputSize(size);
+        }
+    }
+
+    public  void setClientOutputSize(long size) {
+        if(clientTransactionReporter != null) {
+            clientTransactionReporter.setOutputSize(size);
+        }
+    }
+
+    public void setClientInputSize(long size) {
+        if (clientTransactionReporter != null) {
+            clientTransactionReporter.setInputSize(size);
+        }
+    }
+
 }
