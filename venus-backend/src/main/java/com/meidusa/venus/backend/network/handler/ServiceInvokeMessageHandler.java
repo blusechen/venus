@@ -109,8 +109,8 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
     private static Logger logger = LoggerFactory.getLogger(ServiceInvokeMessageHandler.class);
     private static Logger INVOKER_LOGGER = LoggerFactory.getLogger("venus.service.invoker");
     private static Logger performanceLogger = LoggerFactory.getLogger("venus.backend.performance");
-    private static Logger performancePrintResultLogger = LoggerFactory.getLogger("venus.backend.performance.printResult");
-    private static Logger performancePrintParamsLogger = LoggerFactory.getLogger("venus.backend.performance.printParams");
+    private static Logger performancePrintResultLogger = LoggerFactory.getLogger("venus.backend.print.result");
+    private static Logger performancePrintParamsLogger = LoggerFactory.getLogger("venus.backend.print.params");
     private int maxExecutionThread;
     private int threadLiveTime = 30;
     private boolean executorEnabled = false;
@@ -579,11 +579,11 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
         
         if (pLevel != null) {
 
-            if (pLevel.isPrintParams() && performancePrintParamsLogger.isDebugEnabled()) {
+            if (pLevel.isPrintParams()) {
                 buffer.append(", params=");
                 buffer.append(JSON.toJSONString(parameterMap,new SerializerFeature[]{SerializerFeature.ShortString}));
             }
-            if (pLevel.isPrintResult() && performancePrintResultLogger.isDebugEnabled()) {
+            if (pLevel.isPrintResult()) {
             	buffer.append(", result=");
             	if(result instanceof ErrorPacket){
             		buffer.append("{ errorCode=").append(((ErrorPacket) result).errorCode);
@@ -624,7 +624,7 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
 	        	if (performancePrintParamsLogger.isDebugEnabled()) {
 					buffer.append(JSON.toJSONString(parameterMap,new SerializerFeature[]{SerializerFeature.ShortString}));
 				}else{
-					buffer.append("{printParams:disabled}");
+					buffer.append("{print.params:disabled}");
 				}
         	
 	            if (result == null) {
@@ -645,7 +645,7 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
 	            			if (performancePrintResultLogger.isDebugEnabled()) {
 	            				buffer.append(JSON.toJSONString(result,new SerializerFeature[]{SerializerFeature.ShortString}));
 	            			}else{
-	            				buffer.append("{printResult:disabled}");
+	            				buffer.append("{print.result:disabled}");
 	            			}
 	            		}
 	            	}

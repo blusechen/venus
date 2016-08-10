@@ -18,7 +18,7 @@
     <bean id="serviceConnectionFactory" class="com.meidusa.venus.backend.network.VenusBackendFrontendConnectionFactory">
 		<property name="messageHandler">
 			<bean id="messageHandler" class="com.meidusa.venus.backend.network.handler.ServiceInvokeMessageHandler" init-method="init">
-				<property name="maxExecutionThread" value="${venus.server.handler.executor.maxThread:64}"></property>
+				<property name="maxExecutionThread" value="${venus.server.handler.executor.maxThread:128}"></property>
 				<property name="executorProtected" value="${venus.server.handler.executor.protected:false}"></property>
 				<property name="executorEnabled" value="${venus.server.handler.executor.enabled:false}"></property>
 				<property name="useThreadLocalExecutor" value="${venus.server.handler.executor.useThreadLocalExecutor:false}"/>
