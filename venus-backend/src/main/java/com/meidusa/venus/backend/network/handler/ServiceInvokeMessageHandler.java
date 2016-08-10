@@ -109,7 +109,8 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
     private static Logger logger = LoggerFactory.getLogger(ServiceInvokeMessageHandler.class);
     private static Logger INVOKER_LOGGER = LoggerFactory.getLogger("venus.service.invoker");
     private static Logger performanceLogger = LoggerFactory.getLogger("venus.backend.performance");
-
+    private static Logger performancePrintResultLogger = LoggerFactory.getLogger("venus.backend.performance.printResult");
+    private static Logger performancePrintParamsLogger = LoggerFactory.getLogger("venus.backend.performance.printParams");
     private int maxExecutionThread;
     private int threadLiveTime = 30;
     private boolean executorEnabled = false;
@@ -578,11 +579,11 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
         
         if (pLevel != null) {
 
-            if (pLevel.isPrintParams()) {
+            if (pLevel.isPrintParams() && performancePrintParamsLogger.isDebugEnabled()) {
                 buffer.append(", params=");
                 buffer.append(JSON.toJSONString(parameterMap,new SerializerFeature[]{SerializerFeature.ShortString}));
             }
-            if (pLevel.isPrintResult()) {
+            if (pLevel.isPrintResult() && performancePrintResultLogger.isDebugEnabled()) {
             	buffer.append(", result=");
             	if(result instanceof ErrorPacket){
             		buffer.append("{ errorCode=").append(((ErrorPacket) result).errorCode);
@@ -619,9 +620,13 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
             }
 
         } else {
-        	if (performanceLogger.isDebugEnabled()) {
-	            buffer.append(", params=");
-	            buffer.append(JSON.toJSONString(parameterMap,new SerializerFeature[]{SerializerFeature.ShortString}));
+	        	buffer.append(", params=");
+	        	if (performancePrintParamsLogger.isDebugEnabled()) {
+					buffer.append(JSON.toJSONString(parameterMap,new SerializerFeature[]{SerializerFeature.ShortString}));
+				}else{
+					buffer.append("{printParams:disabled}");
+				}
+        	
 	            if (result == null) {
 	                buffer.append(", result=<null>");
 	            } else {
@@ -637,20 +642,23 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
 	                		buffer.append(", className=\"").append(((Response) result).getException().getClass().getSimpleName()).append("\"");
 	                		buffer.append("}");
 	            		}else{
-	            			buffer.append(JSON.toJSONString(result,new SerializerFeature[]{SerializerFeature.ShortString}));
+	            			if (performancePrintResultLogger.isDebugEnabled()) {
+	            				buffer.append(JSON.toJSONString(result,new SerializerFeature[]{SerializerFeature.ShortString}));
+	            			}else{
+	            				buffer.append("{printResult:disabled}");
+	            			}
 	            		}
 	            	}
 	            }
-        	}
-            if (queuedTime >= 30 * 1000 || executTime >= 30 * 1000 || queuedTime + executTime >= 30 * 1000) {
+            if (queuedTime >= 5 * 1000 || executTime >= 5 * 1000 || queuedTime + executTime >= 5 * 1000) {
                 if (performanceLogger.isErrorEnabled()) {
                     performanceLogger.error(buffer.toString());
                 }
-            } else if (queuedTime >= 10 * 1000 || executTime >= 10 * 1000 || queuedTime + executTime >= 10 * 1000) {
+            } else if (queuedTime >= 3 * 1000 || executTime >= 3 * 1000 || queuedTime + executTime >= 3 * 1000) {
                 if (performanceLogger.isWarnEnabled()) {
                     performanceLogger.warn(buffer.toString());
                 }
-            } else if (queuedTime >= 5 * 1000 || executTime >= 5 * 1000 || queuedTime + executTime >= 5 * 1000) {
+            } else if (queuedTime >= 1 * 1000 || executTime >= 1 * 1000 || queuedTime + executTime >= 1 * 1000) {
                 if (performanceLogger.isInfoEnabled()) {
                     performanceLogger.info(buffer.toString());
                 }

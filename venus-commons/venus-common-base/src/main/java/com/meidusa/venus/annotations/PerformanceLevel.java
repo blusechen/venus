@@ -17,11 +17,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PerformanceLevel {
-    int info() default 5 * 1000;
+    int info() default 1 * 1000;
 
-    int warn() default 10 * 1000;
+    int warn() default 3 * 1000;
 
-    int error() default 20 * 1000;
+    int error() default 5 * 1000;
 
     boolean printParams() default false;
 

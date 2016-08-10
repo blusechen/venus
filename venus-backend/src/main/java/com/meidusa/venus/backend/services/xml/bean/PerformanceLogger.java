@@ -1,9 +1,9 @@
 package com.meidusa.venus.backend.services.xml.bean;
 
 public class PerformanceLogger {
-    private int error = 7 * 1000;
-    private int warn = 5 * 1000;
-    private int info = 2 * 1000;
+    private int error = 5 * 1000;
+    private int warn = 3 * 1000;
+    private int info = 1 * 1000;
     private boolean printParams = false;
     private boolean printResult = false;
 
