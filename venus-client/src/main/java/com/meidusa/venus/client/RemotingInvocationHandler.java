@@ -14,46 +14,21 @@
 
 package com.meidusa.venus.client;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.pool.ObjectPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.meidusa.fastjson.JSON;
 import com.meidusa.fastmark.feature.SerializerFeature;
 import com.meidusa.toolkit.common.bean.util.InitialisationException;
 import com.meidusa.toolkit.net.BackendConnection;
 import com.meidusa.toolkit.net.BackendConnectionPool;
 import com.meidusa.toolkit.util.TimeUtil;
-import com.meidusa.venus.annotations.Endpoint;
-import com.meidusa.venus.annotations.ExceptionCode;
-import com.meidusa.venus.annotations.PerformanceLevel;
-import com.meidusa.venus.annotations.RemoteException;
-import com.meidusa.venus.annotations.Service;
+import com.meidusa.venus.annotations.*;
 import com.meidusa.venus.annotations.util.AnnotationUtil;
 import com.meidusa.venus.client.xml.bean.EndpointConfig;
 import com.meidusa.venus.client.xml.bean.ServiceConfig;
-import com.meidusa.venus.exception.CodedException;
-import com.meidusa.venus.exception.DefaultVenusException;
-import com.meidusa.venus.exception.InvalidParameterException;
-import com.meidusa.venus.exception.RemoteSocketIOException;
-import com.meidusa.venus.exception.VenusConfigException;
-import com.meidusa.venus.exception.VenusExceptionFactory;
+import com.meidusa.venus.exception.*;
+import com.meidusa.venus.extension.athena.AthenaTransactionId;
+import com.meidusa.venus.extension.athena.delegate.AthenaTransactionDelegate;
 import com.meidusa.venus.io.network.AbstractBIOConnection;
-import com.meidusa.venus.io.packet.AbstractServicePacket;
-import com.meidusa.venus.io.packet.ErrorPacket;
-import com.meidusa.venus.io.packet.OKPacket;
-import com.meidusa.venus.io.packet.PacketConstant;
-import com.meidusa.venus.io.packet.ServicePacketBuffer;
-import com.meidusa.venus.io.packet.ServiceResponsePacket;
+import com.meidusa.venus.io.packet.*;
 import com.meidusa.venus.io.packet.serialize.SerializeServiceRequestPacket;
 import com.meidusa.venus.io.packet.serialize.SerializeServiceResponsePacket;
 import com.meidusa.venus.io.serializer.Serializer;
@@ -66,6 +41,19 @@ import com.meidusa.venus.util.UUID;
 import com.meidusa.venus.util.Utils;
 import com.meidusa.venus.util.VenusAnnotationUtils;
 import com.meidusa.venus.util.VenusTracerUtil;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.pool.ObjectPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 
@@ -138,6 +126,13 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
     }
 
     protected Object invokeRemoteService(Service service, Endpoint endpoint, Method method, EndpointParameter[] params, Object[] args) throws Exception {
+        String apiName = VenusAnnotationUtils.getApiname(method, service, endpoint);
+
+
+        AthenaTransactionId athenaTransactionId = null;
+        if (service.athenaFlag()) {
+            athenaTransactionId = AthenaTransactionDelegate.getDelegate().startClientTransaction(apiName);
+        }
         boolean async = false;
 
         if (endpoint.async()) {
@@ -149,16 +144,18 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
         if (traceID == null) {
             traceID = VenusTracerUtil.randomTracerID();
         }        
-        SerializeServiceRequestPacket serviceRequestPacket = null;
 
         Serializer serializer = SerializerFactory.getSerializer(serializeType);
-        serviceRequestPacket = new SerializeServiceRequestPacket(serializer, null);
+
+        SerializeServiceRequestPacket serviceRequestPacket = new SerializeServiceRequestPacket(serializer, null);
+
         serviceRequestPacket.clientId = PacketConstant.VENUS_CLIENT_ID;
         serviceRequestPacket.clientRequestId = sequenceId.getAndIncrement();
         serviceRequestPacket.traceId = traceID;
-        serviceRequestPacket.apiName = VenusAnnotationUtils.getApiname(method, service, endpoint);
+        serviceRequestPacket.apiName = apiName;
         serviceRequestPacket.serviceVersion = service.version();
         serviceRequestPacket.parameterMap = new HashMap<String, Object>();
+
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
                 if (args[i] instanceof InvocationListener) {
@@ -183,6 +180,7 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
 
             }
         }
+        setTransactionId(serviceRequestPacket, athenaTransactionId);
 
         PerformanceLevel pLevel = AnnotationUtil.getAnnotation(method.getAnnotations(), PerformanceLevel.class);
         long start = TimeUtil.currentTimeMillis();
@@ -199,14 +197,20 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                 if (nioConnPool instanceof RequestLoadbalanceObjectPool) {
                     conn = (BackendConnection) ((RequestLoadbalanceObjectPool) nioConnPool).borrowObject(serviceRequestPacket.parameterMap, endpoint);
                 } else {
-                    conn = (BackendConnection) nioConnPool.borrowObject();
+                    conn = nioConnPool.borrowObject();
                 }
                 borrowed = TimeUtil.currentTimeMillis();
-
-                conn.write(serviceRequestPacket.toByteBuffer());
+                ByteBuffer buffer = serviceRequestPacket.toByteBuffer();
+                if(service.athenaFlag()) {
+                    AthenaTransactionDelegate.getDelegate().setClientOutputSize(buffer.limit());
+                }
+                conn.write(buffer);
                 VenusTracerUtil.logRequest(traceID, serviceRequestPacket.apiName, JSON.toJSONString(serviceRequestPacket.parameterMap,JSON_FEATURE));
                 return null;
             } finally {
+                if (service.athenaFlag()) {
+                    AthenaTransactionDelegate.getDelegate().completeClientTransaction();
+                }
                 if (performanceLogger.isDebugEnabled()) {
                     long end = TimeUtil.currentTimeMillis();
                     long time = end - borrowed;
@@ -264,16 +268,24 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                     }
                 }
                 
-                byte[] bts = null;
+                byte[] bts;
                 
                 try {
                 
                 	if (soTimeout > 0) {
                 		conn.setSoTimeout(soTimeout);
                 	}
-                    conn.write(serviceRequestPacket.toByteArray());
+
+                    byte[] buff = serviceRequestPacket.toByteArray();
+                    if(service.athenaFlag() && buff != null) {
+                        AthenaTransactionDelegate.getDelegate().setClientOutputSize(buff.length);
+                    }
+                    conn.write(buff);
                     VenusTracerUtil.logRequest(traceID, serviceRequestPacket.apiName, JSON.toJSONString(serviceRequestPacket.parameterMap,JSON_FEATURE));
                     bts = conn.read();
+                    if(service.athenaFlag() && bts != null) {
+                        AthenaTransactionDelegate.getDelegate().setClientInputSize(bts.length);
+                    }
                 }catch(IOException e){
                 	try {
                         conn.close();
@@ -321,10 +333,7 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                         packet = ok;
                         return null;
                     case PacketConstant.PACKET_TYPE_SERVICE_RESPONSE:
-                        ServiceResponsePacket response = null;
-
-                        response = new SerializeServiceResponsePacket(serializer, method.getGenericReturnType());
-
+                        ServiceResponsePacket response = new SerializeServiceResponsePacket(serializer, method.getGenericReturnType());
                         response.init(bts);
                         packet = response;
                         return response.result;
@@ -363,6 +372,9 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
                     }
                 }
             } finally {
+                if (service.athenaFlag()) {
+                    AthenaTransactionDelegate.getDelegate().completeClientTransaction();
+                }
                 long end = TimeUtil.currentTimeMillis();
                 long time = end - borrowed;
                 StringBuffer buffer = new StringBuffer();
@@ -441,7 +453,22 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
         }
     }
 
-    
+    private void setTransactionId(SerializeServiceRequestPacket serviceRequestPacket, AthenaTransactionId athenaTransactionId) {
+        if (athenaTransactionId != null) {
+            if (athenaTransactionId.getRootId() != null) {
+                serviceRequestPacket.rootId = athenaTransactionId.getRootId().getBytes();
+            }
+
+            if (athenaTransactionId.getParentId() != null) {
+                serviceRequestPacket.parentId = athenaTransactionId.getParentId().getBytes();
+            }
+
+            if (athenaTransactionId.getMessageId() != null) {
+                serviceRequestPacket.messageId = athenaTransactionId.getMessageId().getBytes();
+            }
+        }
+    }
+
     public void init() throws InitialisationException {
 
     }

@@ -1,96 +1,10 @@
 package com.meidusa.venus.backend.network.handler;
 
-import java.beans.PropertyDescriptor;
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.meidusa.fastbson.exception.SerializeException;
-import com.meidusa.fastjson.JSON;
-import com.meidusa.fastjson.JSONException;
 import com.meidusa.toolkit.common.bean.util.Initialisable;
 import com.meidusa.toolkit.common.bean.util.InitialisationException;
 import com.meidusa.toolkit.common.util.Tuple;
-import com.meidusa.toolkit.net.Connection;
 import com.meidusa.toolkit.net.MessageHandler;
-import com.meidusa.toolkit.net.util.InetAddressUtil;
-import com.meidusa.toolkit.util.StringUtil;
-import com.meidusa.toolkit.util.TimeUtil;
-import com.meidusa.venus.annotations.ExceptionCode;
-import com.meidusa.venus.annotations.RemoteException;
-import com.meidusa.venus.backend.DefaultEndpointInvocation;
-import com.meidusa.venus.backend.EndpointInvocation.ResultType;
-import com.meidusa.venus.backend.RequestInfo;
-import com.meidusa.venus.backend.Response;
-import com.meidusa.venus.backend.VenusStatus;
-import com.meidusa.venus.backend.context.RequestContext;
-import com.meidusa.venus.backend.profiling.UtilTimerStack;
-import com.meidusa.venus.backend.services.Endpoint;
-import com.meidusa.venus.backend.services.Service;
-import com.meidusa.venus.backend.services.ServiceManager;
-import com.meidusa.venus.backend.services.xml.bean.PerformanceLogger;
-import com.meidusa.venus.backend.view.MediaTypes;
-import com.meidusa.venus.exception.CodedException;
-import com.meidusa.venus.exception.DefaultVenusException;
-import com.meidusa.venus.exception.ExceptionLevel;
-import com.meidusa.venus.exception.ServiceInvokeException;
-import com.meidusa.venus.exception.ServiceNotCallbackException;
-import com.meidusa.venus.exception.ServiceVersionNotAllowException;
-import com.meidusa.venus.exception.VenusExceptionCodeConstant;
-import com.meidusa.venus.exception.VenusExceptionFactory;
-import com.meidusa.venus.exception.VenusExceptionLevel;
 import com.meidusa.venus.io.network.VenusFrontendConnection;
-import com.meidusa.venus.io.packet.AbstractServicePacket;
-import com.meidusa.venus.io.packet.AbstractServiceRequestPacket;
-import com.meidusa.venus.io.packet.ErrorPacket;
-import com.meidusa.venus.io.packet.OKPacket;
-import com.meidusa.venus.io.packet.PacketConstant;
-import com.meidusa.venus.io.packet.PingPacket;
-import com.meidusa.venus.io.packet.PongPacket;
-import com.meidusa.venus.io.packet.ServiceAPIPacket;
-import com.meidusa.venus.io.packet.ServiceHeadPacket;
-import com.meidusa.venus.io.packet.ServicePacketBuffer;
-import com.meidusa.venus.io.packet.ServiceResponsePacket;
-import com.meidusa.venus.io.packet.VenusRouterPacket;
-import com.meidusa.venus.io.packet.VenusStatusRequestPacket;
-import com.meidusa.venus.io.packet.VenusStatusResponsePacket;
-import com.meidusa.venus.io.packet.serialize.SerializeServiceRequestPacket;
-import com.meidusa.venus.io.packet.serialize.SerializeServiceResponsePacket;
-import com.meidusa.venus.io.serializer.Serializer;
-import com.meidusa.venus.io.serializer.SerializerFactory;
-import com.meidusa.venus.notify.InvocationListener;
-import com.meidusa.venus.notify.ReferenceInvocationListener;
-import com.meidusa.venus.service.monitor.MonitorRuntime;
-import com.meidusa.venus.util.ClasspathAnnotationScanner;
-import com.meidusa.venus.util.Range;
-import com.meidusa.venus.util.ThreadLocalConstant;
-import com.meidusa.venus.util.ThreadLocalMap;
-import com.meidusa.venus.util.Utils;
-import com.meidusa.venus.util.VenusTracerUtil;
-import com.meidusa.venus.util.concurrent.DefaultMultiQueueManager;
-import com.meidusa.venus.util.concurrent.MultiBlockingQueue;
-import com.meidusa.venus.util.concurrent.MultiBlockingQueueExecutor;
-import com.meidusa.venus.util.concurrent.MultiBlockingQueueExecutor.CallerRunsPolicy;
-import com.meidusa.venus.util.concurrent.MultiQueueRunnable;
-import com.meidusa.venus.util.concurrent.Named;
-import com.meidusa.venus.util.concurrent.QueueConfig;
 
 /**
  * singleton handler
@@ -99,7 +13,16 @@ import com.meidusa.venus.util.concurrent.QueueConfig;
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ServiceInvokeProtectionMessageHandler implements MessageHandler<VenusFrontendConnection, Tuple<Long, byte[]>>, Initialisable {
-    private static final String TIMEOUT = "The server is busy,waiting-timeout for execution";
+    @Override
+    public void init() throws InitialisationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void handle(VenusFrontendConnection conn, Tuple<Long, byte[]> data) {
+        throw new UnsupportedOperationException();
+    }
+    /*private static final String TIMEOUT = "The server is busy,waiting-timeout for execution";
     static Map<Class<?>,Integer> codeMap = new HashMap<Class<?>,Integer>();
     static {
         Map<Class<?>,ExceptionCode>  map = ClasspathAnnotationScanner.find(Exception.class,ExceptionCode.class);
@@ -108,9 +31,9 @@ public class ServiceInvokeProtectionMessageHandler implements MessageHandler<Ven
                 codeMap.put(entry.getKey(), entry.getValue().errorCode());
             }
         }
-        
+
         Map<Class<?>,RemoteException> rmap = ClasspathAnnotationScanner.find(Exception.class,RemoteException.class);
-        
+
         if(rmap != null){
             for(Map.Entry<Class<?>, RemoteException> entry:rmap.entrySet()){
                 codeMap.put(entry.getKey(), entry.getValue().errorCode());
@@ -148,7 +71,7 @@ public class ServiceInvokeProtectionMessageHandler implements MessageHandler<Ven
             return executor;
         }
     };
-    
+
     class DefaultQueueConfigManager extends DefaultMultiQueueManager {
         final List list = new ArrayList<Tuple<QueueConfig, Queue>>();
         int maxThread;
@@ -436,7 +359,7 @@ public class ServiceInvokeProtectionMessageHandler implements MessageHandler<Ven
 
                         if (e instanceof VenusExceptionLevel) {
                             if (((VenusExceptionLevel) e).getLevel() != null) {
-                                logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), logger, e.getMessage() + " client:{clientID=" + apiPacket.clientId
+                                LogHandler.logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), logger, e.getMessage() + " client:{clientID=" + apiPacket.clientId
                                         + ",ip=" + conn.getHost() + ":" + conn.getPort() + ",sourceIP=" + finalSourceIp + ", apiName=" + apiPacket.apiName
                                         + "}", e);
                             }
@@ -491,9 +414,9 @@ public class ServiceInvokeProtectionMessageHandler implements MessageHandler<Ven
                         errorPacket = checkActive(endpoint, request);
                     }
 
-                    /**
+                    *//**
                      * 判断超时
-                     */
+                     *//*
                     if (errorPacket == null) {
                         errorPacket = checkTimeout(endpoint, request, waitTime);
                     }
@@ -534,8 +457,10 @@ public class ServiceInvokeProtectionMessageHandler implements MessageHandler<Ven
                                 return;
                             }
                             try {
-                                RequestContext context = createContext(getRequestInfo(packetSerializeType, conn, finalRouterPacket, requestFinal), conn,
-                                        endpoint, paramters);
+                                RequestHandler requestHandler = new RequestHandler();
+
+                                RequestInfo requestInfo = requestHandler.getRequestInfo(packetSerializeType, conn, routerPacket);
+                                RequestContext context = requestHandler.createContext(requestInfo, endpoint, request);
                                 ThreadLocalMap.put(VenusTracerUtil.REQUEST_TRACE_ID, traceID);
                                 ThreadLocalMap.put(ThreadLocalConstant.REQUEST_CONTEXT, context);
                                 // invoke service endpoint
@@ -772,27 +697,6 @@ public class ServiceInvokeProtectionMessageHandler implements MessageHandler<Ven
 
     }
 
-    private void logDependsOnLevel(ExceptionLevel level, Logger specifiedLogger, String msg, Throwable e) {
-        switch (level) {
-            case DEBUG:
-                specifiedLogger.debug(msg, e);
-                break;
-            case INFO:
-                specifiedLogger.info(msg, e);
-                break;
-            case TRACE:
-                specifiedLogger.trace(msg, e);
-                break;
-            case WARN:
-                specifiedLogger.warn(msg, e);
-                break;
-            case ERROR:
-                specifiedLogger.error(msg, e);
-                break;
-            default:
-                break;
-        }
-    }
 
     private static ErrorPacket checkTimeout(Endpoint endpoint, AbstractServiceRequestPacket request, long waitTime) {
         if (waitTime > endpoint.getTimeWait()) {
@@ -871,9 +775,9 @@ public class ServiceInvokeProtectionMessageHandler implements MessageHandler<Ven
             } else {
                 response.setException(new DefaultVenusException(e.getMessage(), e));
             }
-            
+
             Integer code = codeMap.get(e.getClass());
-            
+
             if(code != null){
                 response.setErrorCode(code);
                 response.setErrorMessage(e.getMessage());
@@ -903,11 +807,11 @@ public class ServiceInvokeProtectionMessageHandler implements MessageHandler<Ven
                     }
                 }
             }
-            
+
             Service service = endpoint.getService();
             if (e instanceof VenusExceptionLevel) {
                 if (((VenusExceptionLevel) e).getLevel() != null) {
-                    logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), INVOKER_LOGGER, e.getMessage() + " " + context.getRequestInfo().getRemoteIp() + " "
+                    LogHandler.logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), INVOKER_LOGGER, e.getMessage() + " " + context.getRequestInfo().getRemoteIp() + " "
                             + service.getName() + ":" + endpoint.getMethod().getName() + " " + Utils.toString(context.getParameters()), e);
                 }
             } else {
@@ -936,33 +840,12 @@ public class ServiceInvokeProtectionMessageHandler implements MessageHandler<Ven
         return response;
     }
 
-    /**
+    *//**
      * extract request info from connection and packet
-     * 
-     * @param conn
-     * @param packet
+     *
      * @return
-     */
-    private RequestInfo getRequestInfo(byte packetSerializeType, VenusFrontendConnection conn, VenusRouterPacket routerPacket,
-            AbstractServiceRequestPacket packet) {
-        RequestInfo info = new RequestInfo();
-        if (routerPacket != null) {
-            info.setRemoteIp(InetAddressUtil.intToAddress(routerPacket.srcIP));
-        } else {
-            info.setRemoteIp(conn.getHost());
-        }
-        info.setProtocol(RequestInfo.Protocol.SOCKET);
-        info.setClientId(conn.getClientId());
-        if (packetSerializeType == PacketConstant.CONTENT_TYPE_JSON) {
-            info.setAccept(MediaTypes.APPLICATION_JSON);
-        } else if (packetSerializeType == PacketConstant.CONTENT_TYPE_BSON) {
-            // info.setAccept(MediaTypes.APPLICATION_XML);
-        } else if (packetSerializeType == PacketConstant.CONTENT_TYPE_OBJECT) {
-            info.setAccept(MediaTypes.APPLICATION_XML);
-        }
+     *//*
 
-        return info;
-    }
 
     @Override
     public void init() throws InitialisationException {
@@ -988,5 +871,5 @@ public class ServiceInvokeProtectionMessageHandler implements MessageHandler<Ven
             routerPacket.data = result.toByteArray();
             conn.write(routerPacket.toByteBuffer());
         }
-    }
+    }*/
 }

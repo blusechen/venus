@@ -12,7 +12,7 @@ import com.meidusa.venus.annotations.Service;
  * @author structchen
  * 
  */
-@Service(name = "venus.ServiceRegistry", version = 1)
+@Service(name = "venus.ServiceRegistry", version = 1, athenaFlag = false)
 public interface ServiceRegistry {
 
     /**

@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.meidusa.venus.backend.network.handler.LogHandler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -273,7 +274,7 @@ public class VenusHttpServlet2 extends HttpServlet {
 
             if (e instanceof VenusExceptionLevel) {
                 if (((VenusExceptionLevel) e).getLevel() != null) {
-                    logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), logger,
+                    LogHandler.logDependsOnLevel(((VenusExceptionLevel) e).getLevel(), logger,
                             e.getMessage() + " client:{clientID=" + clientID + ",ip=" + req.getRemoteAddr() + ", apiName=" + service + "." + method + "}", e);
                 }
             } else {
@@ -329,28 +330,6 @@ public class VenusHttpServlet2 extends HttpServlet {
             MonitorRuntime.getInstance().calculateAverage(service, method, endTime - startTime,isError);
         }
 
-    }
-
-    private void logDependsOnLevel(ExceptionLevel level, Logger specifiedLogger, String msg, Throwable e) {
-        switch (level) {
-            case DEBUG:
-                specifiedLogger.debug(msg, e);
-                break;
-            case INFO:
-                specifiedLogger.info(msg, e);
-                break;
-            case TRACE:
-                specifiedLogger.trace(msg, e);
-                break;
-            case WARN:
-                specifiedLogger.warn(msg, e);
-                break;
-            case ERROR:
-                specifiedLogger.error(msg, e);
-                break;
-            default:
-                break;
-        }
     }
 
     private void writeResponse(final HttpServletRequest req, // NOPMD by structchen on 13-10-18 上午11:17

@@ -3,11 +3,7 @@
  */
 package com.meidusa.venus.annotations;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * 异常编码注释，该annotation只用于Exception class

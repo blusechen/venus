@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>venus</artifactId>
 		<groupId>com.meidusa.venus</groupId>
-		<version>3.2.15</version>
+		<version>3.2.16</version>
 	</parent>
 	
 	<modelVersion>4.0.0</modelVersion>
@@ -32,6 +32,10 @@
         	<groupId>com.meidusa.venus.commons</groupId>
         	<artifactId>venus-common-exception</artifactId>
         </dependency>
+		<dependency>
+			<groupId>com.meidusa.venus.extension</groupId>
+			<artifactId>venus-extension-athena</artifactId>
+		</dependency>
     </dependencies>
 
 </project>

@@ -16,6 +16,10 @@ public class SerializeServiceRequestPacket extends AbstractServiceRequestPacket 
     private Serializer serializer;
 
     public byte[] traceId;
+    public byte[] rootId;
+    public byte[] parentId;
+    public byte[] messageId;
+
 
     public SerializeServiceRequestPacket(Serializer serializer, Map<String, Type> typeMap) {
         super();
@@ -34,6 +38,17 @@ public class SerializeServiceRequestPacket extends AbstractServiceRequestPacket 
         } else {
             traceId = PacketConstant.EMPTY_TRACE_ID;
         }
+
+        if (buffer.hasRemaining()) {
+            rootId = buffer.readLengthCodedBytes();
+        }
+
+        if (buffer.hasRemaining()) {
+            parentId = buffer.readLengthCodedBytes();
+        }
+        if (buffer.hasRemaining()) {
+            messageId = buffer.readLengthCodedBytes();
+        }
     }
 
     protected void writeBody(ServicePacketBuffer buffer) throws UnsupportedEncodingException {
@@ -45,6 +60,9 @@ public class SerializeServiceRequestPacket extends AbstractServiceRequestPacket 
             traceId = EMPTY_TRACE_ID;
         }
         buffer.writeBytes(traceId);
+        buffer.writeLengthCodedBytes(rootId);
+        buffer.writeLengthCodedBytes(parentId);
+        buffer.writeLengthCodedBytes(messageId);
     }
 
     protected void wirteParams(ServicePacketBuffer buffer) {
@@ -81,5 +99,9 @@ public class SerializeServiceRequestPacket extends AbstractServiceRequestPacket 
         if(parameterMap == null){
             parameterMap = EMP_MAP;
         }
+    }
+
+    protected void readMessageId(ServicePacketBuffer buffer) {
+
     }
 }

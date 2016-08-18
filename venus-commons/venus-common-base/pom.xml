@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>venus-commons</artifactId>
 		<groupId>com.meidusa.venus.commons</groupId>
-		<version>3.2.15</version>
+		<version>3.2.16</version>
 	</parent>
 	
 	<artifactId>venus-common-base</artifactId>
@@ -32,6 +32,10 @@
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.meidusa.venus</groupId>
+			<artifactId>venus-annotations</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.meidusa.toolkit.commons</groupId>
