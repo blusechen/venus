@@ -1,7 +1,8 @@
 package com.meidusa.venus.extension.athena;
 
-import com.meidusa.venus.extension.athena.delegate.AthenaReporterDelegate;
-import com.meidusa.venus.extension.athena.delegate.AthenaTransactionDelegate;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 import org.slf4j.Logger;
@@ -10,7 +11,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
-import java.io.IOException;
+import com.meidusa.venus.extension.athena.delegate.AthenaReporterDelegate;
+import com.meidusa.venus.extension.athena.delegate.AthenaTransactionDelegate;
 
 /**
  * Created by GodzillaHua on 7/3/16.
@@ -35,14 +37,18 @@ public final class AthenaExtensionResolver {
         String athenaExtensionIniLocation = PathMatchingResourcePatternResolver.CLASSPATH_URL_PREFIX + "/META-INF/venus.extension.athena.ini";
         Resource resource = resourcePatternResolver.getResource(athenaExtensionIniLocation);
         if (resource.exists()) {
+        	InputStream is = null; 
             try {
-                ini.load(resource.getInputStream());
+            	is = resource.getInputStream();
+                ini.load(is);
             } catch (IOException e) {
                 logger.error("load athena ini file error", e);
                 return;
             }finally {
                 try{
-                    resource.getInputStream().close();
+                	if(is != null){
+                		is.close();
+                	}
                 }catch (Exception e) {
                     logger.warn("resource cannot be close correctly", e);
                     //ignore
