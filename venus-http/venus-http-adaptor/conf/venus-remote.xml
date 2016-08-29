@@ -21,8 +21,8 @@
 			
 			<!-- 与每个远程节点的连接池配置，与apache的commons-pool配置一致 -->
 			<pool>
-				<property name="maxActive">10</property>
-				<property name="maxIdle">1</property>
+				<property name="maxActive">${venus.pool.maxActive:100}</property>
+				<property name="maxIdle">${venus.pool.maxIdle:100}</property>
 				<property name="minIdle">1</property>
 				<property name="minEvictableIdleTimeMillis">60000</property>
 				<property name="timeBetweenEvictionRunsMillis">60000</property>
