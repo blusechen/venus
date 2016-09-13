@@ -14,30 +14,17 @@
 
 package com.meidusa.venus.client;
 
-import com.meidusa.toolkit.common.bean.BeanContext;
-import com.meidusa.toolkit.common.bean.BeanContextBean;
-import com.meidusa.toolkit.common.bean.config.ConfigUtil;
-import com.meidusa.toolkit.common.bean.config.ConfigurationException;
-import com.meidusa.toolkit.common.bean.util.InitialisationException;
-import com.meidusa.toolkit.common.poolable.MultipleLoadBalanceObjectPool;
-import com.meidusa.toolkit.common.poolable.ObjectPool;
-import com.meidusa.toolkit.common.poolable.PoolableObjectPool;
-import com.meidusa.toolkit.common.util.Tuple;
-import com.meidusa.toolkit.net.*;
-import com.meidusa.toolkit.util.StringUtil;
-import com.meidusa.venus.annotations.Endpoint;
-import com.meidusa.venus.client.xml.bean.*;
-import com.meidusa.venus.digester.DigesterRuleParser;
-import com.meidusa.venus.exception.CodedException;
-import com.meidusa.venus.exception.VenusConfigException;
-import com.meidusa.venus.exception.VenusExceptionFactory;
-import com.meidusa.venus.exception.XmlVenusExceptionFactory;
-import com.meidusa.venus.extension.athena.AthenaExtensionResolver;
-import com.meidusa.venus.io.network.VenusBIOConnectionFactory;
-import com.meidusa.venus.io.network.VenusBackendConnectionFactory;
-import com.meidusa.venus.io.packet.PacketConstant;
-import com.meidusa.venus.util.FileWatchdog;
-import com.meidusa.venus.util.VenusBeanUtilsBean;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -52,16 +39,42 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.net.URL;
-import java.util.*;
+import com.meidusa.toolkit.common.bean.BeanContext;
+import com.meidusa.toolkit.common.bean.BeanContextBean;
+import com.meidusa.toolkit.common.bean.config.ConfigUtil;
+import com.meidusa.toolkit.common.bean.config.ConfigurationException;
+import com.meidusa.toolkit.common.bean.util.InitialisationException;
+import com.meidusa.toolkit.common.poolable.MultipleLoadBalanceObjectPool;
+import com.meidusa.toolkit.common.poolable.ObjectPool;
+import com.meidusa.toolkit.common.poolable.PoolableObjectPool;
+import com.meidusa.toolkit.common.util.Tuple;
+import com.meidusa.toolkit.net.BackendConnectionPool;
+import com.meidusa.toolkit.net.ConnectionConnector;
+import com.meidusa.toolkit.net.ConnectionManager;
+import com.meidusa.toolkit.net.MultipleLoadBalanceBackendConnectionPool;
+import com.meidusa.toolkit.net.PollingBackendConnectionPool;
+import com.meidusa.toolkit.util.StringUtil;
+import com.meidusa.venus.annotations.Endpoint;
+import com.meidusa.venus.client.xml.bean.FactoryConfig;
+import com.meidusa.venus.client.xml.bean.PoolConfig;
+import com.meidusa.venus.client.xml.bean.Remote;
+import com.meidusa.venus.client.xml.bean.ServiceConfig;
+import com.meidusa.venus.client.xml.bean.VenusClient;
+import com.meidusa.venus.digester.DigesterRuleParser;
+import com.meidusa.venus.exception.CodedException;
+import com.meidusa.venus.exception.VenusConfigException;
+import com.meidusa.venus.exception.VenusExceptionFactory;
+import com.meidusa.venus.exception.XmlVenusExceptionFactory;
+import com.meidusa.venus.extension.athena.AthenaExtensionResolver;
+import com.meidusa.venus.io.network.VenusBIOConnectionFactory;
+import com.meidusa.venus.io.network.VenusBackendConnectionFactory;
+import com.meidusa.venus.io.packet.PacketConstant;
+import com.meidusa.venus.util.FileWatchdog;
+import com.meidusa.venus.util.VenusBeanUtilsBean;
 
 public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, InitializingBean, BeanFactoryPostProcessor {
     private static Logger logger = LoggerFactory.getLogger(ServiceFactory.class);
@@ -70,16 +83,12 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
     private BeanFactory beanFactory;
     private ConnectionManager connManager;
     private ConnectionConnector connector;
-    private String[] configFiles;
+    private Resource[] configFiles;
     private BeanContext beanContext;
     private boolean enableAsync = true;
     private boolean shutdown = false;
     private Map<String, Tuple<ObjectPool, BackendConnectionPool>> poolMap = new HashMap<String, Tuple<ObjectPool, BackendConnectionPool>>(); // NOPMD
-    // by
-    // structchen
-    // on
-    // 13-10-21
-    // 下午12:25
+    
     private Map<String, Object> realPools = new HashMap<String, Object>();
     private InvocationListenerContainer container = new InvocationListenerContainer();
     private VenusNIOMessageHandler handler = new VenusNIOMessageHandler();
@@ -89,7 +98,7 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
     private boolean needPing = false;
     private Timer reloadTimer = new Timer();
     private boolean enableReload = false;
-
+    private ResourceLoader resourceLoader = new DefaultResourceLoader();
     public boolean isEnableReload() {
         return enableReload;
     }
@@ -138,11 +147,11 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
         this.venusExceptionFactory = venusExceptionFactory;
     }
 
-    public String[] getConfigFiles() {
+    public Resource[] getConfigFiles() {
         return configFiles;
     }
 
-    public void setConfigFiles(String[] configFiles) {
+    public void setConfigFiles(Resource... configFiles) {
         this.configFiles = configFiles;
     }
 
@@ -201,7 +210,7 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
         handler.setContainer(this.container);
         reloadConfiguration();
 
-        __RELOAD:
+        /*__RELOAD:
         {
             if (enableReload) {
                 File[] files = new File[this.configFiles.length];
@@ -219,7 +228,7 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
                 dog.setDelay(1000 * 10);
                 dog.start();
             }
-        }
+        }*/
     }
 
     class VenusFileWatchdog extends FileWatchdog {
@@ -299,8 +308,8 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
                                    Map<Class<?>, Tuple<Object, RemotingInvocationHandler>> servicesMap, Map<Class<?>, ServiceConfig> serviceConfig, Map<String, Object> realPools)
             throws Exception {
         VenusClient all = new VenusClient();
-        for (String configFile : configFiles) {
-            configFile = (String) ConfigUtil.filter(configFile);
+        for (Resource configFile : configFiles) {
+           // configFile = (String) ConfigUtil.filter(configFile);
             URL url = this.getClass().getResource("venusClientRule.xml");
             if (url == null) {
                 throw new VenusConfigException("venusClientRule.xml not found!,pls rebuild venus!");
@@ -311,16 +320,23 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
             digester.addRuleSet(ruleSet);
 
             try {
-                InputStream is = ResourceUtils.getURL(configFile.trim()).openStream();
-                VenusClient venus = (VenusClient) digester.parse(is);
-                for (ServiceConfig config : venus.getServiceConfigs()) {
-                    if (config.getType() == null) {
-                        logger.error("Service type can not be null:" + configFile);
-                        throw new ConfigurationException("Service type can not be null:" + configFile);
-                    }
+            	//resourceLoader.getResource(configFile.trim())
+	                InputStream is = configFile.getInputStream();
+	                try{
+	                VenusClient venus = (VenusClient) digester.parse(is);
+	                for (ServiceConfig config : venus.getServiceConfigs()) {
+	                    if (config.getType() == null) {
+	                        logger.error("Service type can not be null:" + configFile);
+	                        throw new ConfigurationException("Service type can not be null:" + configFile);
+	                    }
+	                }
+	                all.getRemoteMap().putAll(venus.getRemoteMap());
+	                all.getServiceConfigs().addAll(venus.getServiceConfigs());
+                }finally{
+                	if(is != null){
+                		is.close();
+                	}
                 }
-                all.getRemoteMap().putAll(venus.getRemoteMap());
-                all.getServiceConfigs().addAll(venus.getServiceConfigs());
             } catch (Exception e) {
                 throw new ConfigurationException("can not parser xml:" + configFile, e);
             }

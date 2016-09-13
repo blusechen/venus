@@ -233,6 +233,7 @@ public class RemotingInvocationHandler extends VenusInvocationHandler {
             AbstractServicePacket packet = null;
             String remoteAddress = null;
             boolean invalided = false;
+            boolean nullForSystemException = false;
             try {
                 if (bioConnPool instanceof RequestLoadbalanceObjectPool) {
                     conn = (AbstractBIOConnection) ((RequestLoadbalanceObjectPool) bioConnPool).borrowObject(serviceRequestPacket.parameterMap, endpoint);

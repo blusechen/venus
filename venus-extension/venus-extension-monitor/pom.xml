@@ -3,10 +3,11 @@
   <parent>
     <groupId>com.meidusa.venus.extension</groupId>
     <artifactId>venus-extension</artifactId>
-    <version>3.2.16</version>
+    <version>3.2.17</version>
   </parent>
   
   <artifactId>venus-extension-monitor</artifactId>
+  <name>${project.artifactId} v${project.version}</name>
   <dependencies>
   	<dependency>
   		<groupId>commons-lang</groupId>

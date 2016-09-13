@@ -4,7 +4,7 @@ public class PerformanceLogger {
     private int error = 5 * 1000;
     private int warn = 3 * 1000;
     private int info = 1 * 1000;
-    private boolean printParams = false;
+    private boolean printParams = true;
     private boolean printResult = false;
 
     public int getError() {
