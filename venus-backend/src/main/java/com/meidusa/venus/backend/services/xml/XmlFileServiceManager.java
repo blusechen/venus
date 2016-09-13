@@ -1,8 +1,6 @@
 package com.meidusa.venus.backend.services.xml;
 
-import java.beans.PropertyDescriptor;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,9 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.meidusa.venus.backend.network.handler.CodeMapScanner;
-import com.meidusa.venus.extension.athena.AthenaExtensionResolver;
-import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.digester.Digester;
@@ -24,8 +19,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 
 import com.google.common.collect.HashMultimap;
@@ -43,6 +38,7 @@ import com.meidusa.venus.backend.interceptor.Interceptor;
 import com.meidusa.venus.backend.interceptor.InterceptorMapping;
 import com.meidusa.venus.backend.interceptor.InterceptorStack;
 import com.meidusa.venus.backend.interceptor.config.InterceptorConfig;
+import com.meidusa.venus.backend.network.handler.CodeMapScanner;
 import com.meidusa.venus.backend.services.AbstractServiceManager;
 import com.meidusa.venus.backend.services.Endpoint;
 import com.meidusa.venus.backend.services.Service;
@@ -56,6 +52,7 @@ import com.meidusa.venus.backend.services.xml.bean.ServiceConfig;
 import com.meidusa.venus.backend.services.xml.bean.Venus;
 import com.meidusa.venus.digester.DigesterRuleParser;
 import com.meidusa.venus.exception.VenusConfigException;
+import com.meidusa.venus.extension.athena.AthenaExtensionResolver;
 import com.meidusa.venus.service.monitor.MonitorRuntime;
 import com.meidusa.venus.service.monitor.MonitorService;
 import com.meidusa.venus.service.monitor.ServerStatus;
@@ -66,15 +63,15 @@ import com.meidusa.venus.util.VenusBeanUtilsBean;
 
 public class XmlFileServiceManager extends AbstractServiceManager implements InitializingBean, BeanFactoryAware {
     private static Logger logger = LoggerFactory.getLogger(XmlFileServiceManager.class);
-    private String[] configFiles;
+    private Resource[] configFiles;
     private BeanFactory beanFactory;
     private BeanContext beanContext;
 
-    public String[] getConfigFiles() {
+    public Resource[] getConfigFiles() {
         return configFiles;
     }
 
-    public void setConfigFiles(String[] configFiles) {
+    public void setConfigFiles(Resource... configFiles) {
         this.configFiles = configFiles;
     }
 
@@ -102,20 +99,19 @@ public class XmlFileServiceManager extends AbstractServiceManager implements Ini
 
 
     private void loadVenusService(List<ServiceConfig> serviceConfigList, Map<String, InterceptorMapping> interceptors, Map<String, InterceptorStackConfig> interceptorStacks) {
-        for (String configFile : configFiles) {
-            configFile = (String) ConfigUtil.filter(configFile.trim());
+        for (Resource config : configFiles) {
             RuleSet ruleSet = new FromXmlRuleSet(this.getClass().getResource("venusServerRule.xml"), new DigesterRuleParser());
             Digester digester = new Digester();
             digester.addRuleSet(ruleSet);
 
             try {
-                InputStream is = ResourceUtils.getURL(configFile.trim()).openStream();
+                InputStream is = config.getInputStream();
                 Venus venus = (Venus) digester.parse(is);
                 serviceConfigList.addAll(venus.getServiceConfigs());
                 interceptors.putAll(venus.getInterceptors());
                 interceptorStacks.putAll(venus.getInterceptorStatcks());
             } catch (Exception e) {
-                throw new ConfigurationException("can not parser xml:" + configFile, e);
+                throw new ConfigurationException("can not parser xml:" + config.getFilename(), e);
             }
         }
     }
