@@ -80,8 +80,6 @@ public abstract class VenusInvocationHandler implements InvocationHandler {
             } else {
                 if (method.getDeclaringClass().equals(Object.class)) {
                     return method.invoke(this, args);
-                } else if(method.getDeclaringClass().equals(ObjectFactory.class) && method.getName().equalsIgnoreCase("getObject")){
-                	return proxy;
                 }else{
                     logger.error("remote invoke error: endpoint annotation not declare on method=" + method.getName());
                     throw new IllegalAccessException("remote invoke error: endpoint annotation not declare on method=" + method.getName());

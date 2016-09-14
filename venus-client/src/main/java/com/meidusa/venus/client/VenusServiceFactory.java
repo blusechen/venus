@@ -396,7 +396,7 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
 
                 invocationHandler.setContainer(this.container);
 
-                Object object = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{config.getType(),ObjectFactory.class}, invocationHandler);
+                Object object = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{config.getType()}, invocationHandler);
 
                 for (Method method : config.getType().getMethods()) {
                     Endpoint endpoint = method.getAnnotation(Endpoint.class);
