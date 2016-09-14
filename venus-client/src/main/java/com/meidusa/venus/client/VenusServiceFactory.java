@@ -21,9 +21,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.naming.Context;
+import javax.naming.Name;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtilsBean;
@@ -35,17 +39,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 import com.meidusa.toolkit.common.bean.BeanContext;
 import com.meidusa.toolkit.common.bean.BeanContextBean;
-import com.meidusa.toolkit.common.bean.config.ConfigUtil;
 import com.meidusa.toolkit.common.bean.config.ConfigurationException;
 import com.meidusa.toolkit.common.bean.util.InitialisationException;
 import com.meidusa.toolkit.common.poolable.MultipleLoadBalanceObjectPool;
@@ -76,11 +86,10 @@ import com.meidusa.venus.io.packet.PacketConstant;
 import com.meidusa.venus.util.FileWatchdog;
 import com.meidusa.venus.util.VenusBeanUtilsBean;
 
-public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, InitializingBean, BeanFactoryPostProcessor {
+public class VenusServiceFactory implements ServiceFactory,ApplicationContextAware, InitializingBean, BeanFactoryPostProcessor {
     private static Logger logger = LoggerFactory.getLogger(ServiceFactory.class);
     private Map<Class<?>, Tuple<Object, RemotingInvocationHandler>> servicesMap = new HashMap<Class<?>, Tuple<Object, RemotingInvocationHandler>>();
     private Map<String, Tuple<Object, RemotingInvocationHandler>> serviceBeanMap = new HashMap<String, Tuple<Object, RemotingInvocationHandler>>();
-    private BeanFactory beanFactory;
     private ConnectionManager connManager;
     private ConnectionConnector connector;
     private Resource[] configFiles;
@@ -98,7 +107,9 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
     private boolean needPing = false;
     private Timer reloadTimer = new Timer();
     private boolean enableReload = false;
+    private boolean inited = false;
     private ResourceLoader resourceLoader = new DefaultResourceLoader();
+	private ApplicationContext applicationContext;
     public boolean isEnableReload() {
         return enableReload;
     }
@@ -165,12 +176,13 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
         return (T) object.left;
     }
 
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
-    }
-
     @SuppressWarnings("unchecked")
     public void afterPropertiesSet() throws Exception {
+    	if(inited){
+    		return;
+    	}
+    	
+    	inited = true;
         logger.trace("current Venus Client id=" + PacketConstant.VENUS_CLIENT_ID);
         if (venusExceptionFactory == null) {
             XmlVenusExceptionFactory xmlVenusExceptionFactory = new XmlVenusExceptionFactory();
@@ -203,7 +215,7 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
             connector.start();
         }
 
-        beanContext = new ClientBeanContext(beanFactory);
+        beanContext = new ClientBeanContext(applicationContext!= null ?applicationContext.getAutowireCapableBeanFactory(): null);
         BeanContextBean.getInstance().setBeanContext(beanContext);
         VenusBeanUtilsBean.setInstance(new ClientBeanUtilsBean(new ConvertUtilsBean(), new PropertyUtilsBean(), beanContext));
         AthenaExtensionResolver.getInstance().resolver();
@@ -384,7 +396,7 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
 
                 invocationHandler.setContainer(this.container);
 
-                Object object = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{config.getType()}, invocationHandler);
+                Object object = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{config.getType(),ObjectFactory.class}, invocationHandler);
 
                 for (Method method : config.getType().getMethods()) {
                     Endpoint endpoint = method.getAnnotation(Endpoint.class);
@@ -607,13 +619,41 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
     }
 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
-        // register to resolvable dependency container
+		// register to resolvable dependency container
+		//BeanFactory beanFactory = applicationContext.getAutowireCapableBeanFactory();
         if (beanFactory instanceof ConfigurableListableBeanFactory) {
             ConfigurableListableBeanFactory cbf = (ConfigurableListableBeanFactory) beanFactory;
             for (Map.Entry<Class<?>, Tuple<Object, RemotingInvocationHandler>> entry : servicesMap.entrySet()) {
                 cbf.registerResolvableDependency(entry.getKey(), entry.getValue().left);
+                final Object bean = entry.getValue().left;
+                if(beanFactory instanceof BeanDefinitionRegistry){
+                	BeanDefinitionRegistry reg = (BeanDefinitionRegistry)beanFactory;
+                	GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+                	beanDefinition.setBeanClass(ServiceFactoryBean.class);
+                	
+                	beanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
+                	ConstructorArgumentValues args = new ConstructorArgumentValues();
+                	args.addIndexedArgumentValue(0,bean);
+                	args.addIndexedArgumentValue(1,entry.getKey());
+                	beanDefinition.setConstructorArgumentValues(args);
+                	String beanName = null;
+                	for (Map.Entry<String, Tuple<Object, RemotingInvocationHandler>> beanKey : serviceBeanMap.entrySet()) {
+                		if(bean == beanKey.getValue().left){
+                			beanName = beanKey.getKey();
+                			break;
+                		}
+                    }
+                	
+                	if(beanName == null){
+                		beanName = entry.getValue().left.getClass().getName()+"#0";
+                		beanDefinition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
+                	}else{
+                		beanDefinition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_NAME);
+                	}
+                	reg.registerBeanDefinition(beanName, beanDefinition);
+                }
             }
+            
             for (Map.Entry<String, Tuple<Object, RemotingInvocationHandler>> entry : serviceBeanMap.entrySet()) {
                 cbf.registerSingleton(entry.getKey(), entry.getValue().left);
             }
@@ -636,5 +676,12 @@ public class VenusServiceFactory implements ServiceFactory, BeanFactoryAware, In
             }
         }
     }
+    
+  
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext)
+			throws BeansException {
+		this.applicationContext = applicationContext;
+	}
 
 }

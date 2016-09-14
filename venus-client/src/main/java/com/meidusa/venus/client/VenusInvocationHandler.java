@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectFactory;
 
 import com.meidusa.toolkit.common.util.StringUtil;
 import com.meidusa.venus.annotations.Endpoint;
@@ -79,7 +80,9 @@ public abstract class VenusInvocationHandler implements InvocationHandler {
             } else {
                 if (method.getDeclaringClass().equals(Object.class)) {
                     return method.invoke(this, args);
-                } else {
+                } else if(method.getDeclaringClass().equals(ObjectFactory.class) && method.getName().equalsIgnoreCase("getObject")){
+                	return proxy;
+                }else{
                     logger.error("remote invoke error: endpoint annotation not declare on method=" + method.getName());
                     throw new IllegalAccessException("remote invoke error: endpoint annotation not declare on method=" + method.getName());
                 }

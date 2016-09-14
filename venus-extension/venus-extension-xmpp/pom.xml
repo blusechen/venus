@@ -3,7 +3,7 @@
   <parent>
     <artifactId>venus-extension</artifactId>
     <groupId>com.meidusa.venus.extension</groupId>
-    <version>3.2.17</version>
+    <version>3.2.18</version>
   </parent>
   <artifactId>venus-extension-xmpp</artifactId>
   <name>${project.artifactId} v${project.version}</name>

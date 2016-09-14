@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.meidusa.venus</groupId>
 	<artifactId>venus</artifactId>
-	<version>3.2.17</version>
+	<version>3.2.18</version>
 	<packaging>pom</packaging>
 	
 	<name>${project.artifactId} v${project.version}</name>
@@ -383,14 +383,14 @@
 	</build>
 	<distributionManagement>
 		<repository>
-			<id>release-open</id>
+			<id>motor-open</id>
 			<name>Internal Releases</name>
-			<url>http://maven.hexnova.com/nexus/content/repositories/release-open</url>
+			<url>https://dev-cv.saicmotor.com/nexus/content/repositories/release-open</url>
 		</repository>
 		<snapshotRepository>
-			<id>release-open</id>
+			<id>motor-open</id>
 			<name>Internal snapshots</name>
-			<url>http://maven.hexnova.com/nexus/content/repositories/snapshot-open</url>
+			<url>https://dev-cv.saicmotor.com/nexus/content/repositories/snapshot-open</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<repositories>
