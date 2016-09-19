@@ -88,8 +88,8 @@ import com.meidusa.venus.util.VenusBeanUtilsBean;
 
 public class VenusServiceFactory implements ServiceFactory,ApplicationContextAware, InitializingBean, BeanFactoryPostProcessor {
     private static Logger logger = LoggerFactory.getLogger(ServiceFactory.class);
-    private Map<Class<?>, Tuple<Object, RemotingInvocationHandler>> servicesMap = new HashMap<Class<?>, Tuple<Object, RemotingInvocationHandler>>();
-    private Map<String, Tuple<Object, RemotingInvocationHandler>> serviceBeanMap = new HashMap<String, Tuple<Object, RemotingInvocationHandler>>();
+    private Map<Class<?>, ServiceDefinedBean> servicesMap = new HashMap<Class<?>, ServiceDefinedBean>();
+    private Map<String, ServiceDefinedBean> serviceBeanMap = new HashMap<String, ServiceDefinedBean>();
     private ConnectionManager connManager;
     private ConnectionConnector connector;
     private Resource[] configFiles;
@@ -110,6 +110,19 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
     private boolean inited = false;
     private ResourceLoader resourceLoader = new DefaultResourceLoader();
 	private ApplicationContext applicationContext;
+	class ServiceDefinedBean {
+		String beanName;
+		Class<?> clazz;
+		Object service;
+		RemotingInvocationHandler handler;
+		public ServiceDefinedBean(String beanName,Class<?> clazz, Object service,RemotingInvocationHandler handler){
+			this.beanName = beanName;
+			this.clazz = clazz;
+			this.service = service;
+			this.handler = handler;
+		}
+		
+	}
     public boolean isEnableReload() {
         return enableReload;
     }
@@ -171,9 +184,9 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
         if (shutdown) {
             throw new IllegalStateException("service factory has been shutdown");
         }
-        Tuple<Object, RemotingInvocationHandler> object = servicesMap.get(t);
+        ServiceDefinedBean object = servicesMap.get(t);
 
-        return (T) object.left;
+        return (T) object.service;
     }
 
     @SuppressWarnings("unchecked")
@@ -261,7 +274,7 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
     }
 
     private synchronized void reloadConfiguration() throws Exception {
-        Map<Class<?>, Tuple<Object, RemotingInvocationHandler>> servicesMap = new HashMap<Class<?>, Tuple<Object, RemotingInvocationHandler>>();
+        Map<Class<?>, ServiceDefinedBean> servicesMap = new HashMap<Class<?>, ServiceDefinedBean>();
         Map<String, Tuple<ObjectPool, BackendConnectionPool>> poolMap = new HashMap<String, Tuple<ObjectPool, BackendConnectionPool>>();
         Map<Class<?>, ServiceConfig> serviceConfig = new HashMap<Class<?>, ServiceConfig>();
 
@@ -274,14 +287,14 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
         }
         this.poolMap = poolMap;
 
-        for (Map.Entry<Class<?>, Tuple<Object, RemotingInvocationHandler>> entry : servicesMap.entrySet()) {
+        for (Map.Entry<Class<?>, ServiceDefinedBean> entry : servicesMap.entrySet()) {
             Class<?> key = entry.getKey();
-            Tuple<Object, RemotingInvocationHandler> source = entry.getValue();
-            Tuple<Object, RemotingInvocationHandler> target = this.servicesMap.get(key);
+            ServiceDefinedBean source = entry.getValue();
+            ServiceDefinedBean target = this.servicesMap.get(key);
             if (target != null) {
-                target.right.setBioConnPool(source.getRight().getBioConnPool());
-                target.right.setNioConnPool(source.getRight().getNioConnPool());
-                target.right.setSerializeType((byte) target.right.getSerializeType());
+                target.handler.setBioConnPool(source.handler.getBioConnPool());
+                target.handler.setNioConnPool(source.handler.getNioConnPool());
+                target.handler.setSerializeType((byte) source.handler.getSerializeType());
             } else {
                 this.servicesMap.put(key, source);
             }
@@ -317,7 +330,7 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
     }
 
     private void loadConfiguration(Map<String, Tuple<ObjectPool, BackendConnectionPool>> poolMap,
-                                   Map<Class<?>, Tuple<Object, RemotingInvocationHandler>> servicesMap, Map<Class<?>, ServiceConfig> serviceConfig, Map<String, Object> realPools)
+                                   Map<Class<?>, ServiceDefinedBean> servicesMap, Map<Class<?>, ServiceConfig> serviceConfig, Map<String, Object> realPools)
             throws Exception {
         VenusClient all = new VenusClient();
         for (Resource configFile : configFiles) {
@@ -411,17 +424,21 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
                 }
 
                 serviceConfig.put(config.getType(), config);
-                Tuple<Object, RemotingInvocationHandler> serviceTuple = new Tuple<Object, RemotingInvocationHandler>(object, invocationHandler);
-                servicesMap.put(config.getType(), serviceTuple);
+                ServiceDefinedBean defined = new ServiceDefinedBean(config.getBeanName(),config.getType(),object, invocationHandler);
+                
                 if (config.getBeanName() != null) {
-                    serviceBeanMap.put(config.getBeanName(), serviceTuple);
+                    serviceBeanMap.put(config.getBeanName(), defined);
+                }else{
+                	servicesMap.put(config.getType(), defined);
                 }
             } else {
                 if (config.getInstance() != null) {
-                    Tuple<Object, RemotingInvocationHandler> serviceTuple = new Tuple<Object, RemotingInvocationHandler>(config.getInstance(), null);
-                    servicesMap.put(config.getType(), serviceTuple);
+                    ServiceDefinedBean defined = new ServiceDefinedBean(config.getBeanName(),config.getType(),config.getInstance(), null);
+                    
                     if (config.getBeanName() != null) {
-                        serviceBeanMap.put(config.getBeanName(), serviceTuple);
+                        serviceBeanMap.put(config.getBeanName(), defined);
+                    }else{
+                    	servicesMap.put(config.getType(), defined);
                     }
                 } else {
                     throw new ConfigurationException("Service instance or ipAddressList or remote can not be null:" + config.getType());
@@ -623,9 +640,9 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
 		//BeanFactory beanFactory = applicationContext.getAutowireCapableBeanFactory();
         if (beanFactory instanceof ConfigurableListableBeanFactory) {
             ConfigurableListableBeanFactory cbf = (ConfigurableListableBeanFactory) beanFactory;
-            for (Map.Entry<Class<?>, Tuple<Object, RemotingInvocationHandler>> entry : servicesMap.entrySet()) {
-                cbf.registerResolvableDependency(entry.getKey(), entry.getValue().left);
-                final Object bean = entry.getValue().left;
+            for (Map.Entry<Class<?>, ServiceDefinedBean> entry : servicesMap.entrySet()) {
+                //cbf.registerResolvableDependency(entry.getKey(), entry.getValue().left);
+                final Object bean = entry.getValue().service;
                 if(beanFactory instanceof BeanDefinitionRegistry){
                 	BeanDefinitionRegistry reg = (BeanDefinitionRegistry)beanFactory;
                 	GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
@@ -634,29 +651,35 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
                 	beanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
                 	ConstructorArgumentValues args = new ConstructorArgumentValues();
                 	args.addIndexedArgumentValue(0,bean);
-                	args.addIndexedArgumentValue(1,entry.getKey());
+                	args.addIndexedArgumentValue(1,entry.getValue().clazz);
                 	beanDefinition.setConstructorArgumentValues(args);
-                	String beanName = null;
-                	for (Map.Entry<String, Tuple<Object, RemotingInvocationHandler>> beanKey : serviceBeanMap.entrySet()) {
-                		if(bean == beanKey.getValue().left){
-                			beanName = beanKey.getKey();
-                			break;
-                		}
-                    }
                 	
-                	if(beanName == null){
-                		beanName = entry.getValue().left.getClass().getName()+"#0";
-                		beanDefinition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
-                	}else{
-                		beanDefinition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_NAME);
-                	}
-                	reg.registerBeanDefinition(beanName, beanDefinition);
+                	String beanName = entry.getValue().clazz.getName()+"#0";
+            		beanDefinition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
+            		reg.registerBeanDefinition(beanName, beanDefinition);
                 }
             }
-            
-            for (Map.Entry<String, Tuple<Object, RemotingInvocationHandler>> entry : serviceBeanMap.entrySet()) {
-                cbf.registerSingleton(entry.getKey(), entry.getValue().left);
-            }
+
+			for (Map.Entry<String, ServiceDefinedBean> entry : serviceBeanMap.entrySet()) {
+				final Object bean = entry.getValue().service;
+				if (beanFactory instanceof BeanDefinitionRegistry) {
+
+					BeanDefinitionRegistry reg = (BeanDefinitionRegistry) beanFactory;
+					GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+					beanDefinition.setBeanClass(ServiceFactoryBean.class);
+
+					beanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
+					ConstructorArgumentValues args = new ConstructorArgumentValues();
+					args.addIndexedArgumentValue(0, bean);
+					args.addIndexedArgumentValue(1, entry.getValue().clazz);
+					beanDefinition.setConstructorArgumentValues(args);
+
+					String beanName = entry.getValue().beanName;
+					beanDefinition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_NAME);
+					reg.registerBeanDefinition(beanName, beanDefinition);
+
+				}
+			}
         }
     }
 

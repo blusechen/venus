@@ -4,13 +4,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.meidusa.venus</groupId>
 	<artifactId>venus</artifactId>
-	<version>3.2.18</version>
+	<version>3.2.19</version>
 	<packaging>pom</packaging>
 	
 	<name>${project.artifactId} v${project.version}</name>
 	<properties>
 		<spring.version>3.2.4.RELEASE</spring.version>
-		<venus.version>3.2.17</venus.version>
+		<venus.version>3.2.19</venus.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<slf4j.version>1.7.5</slf4j.version>
 		<logback.version>1.0.13</logback.version>
