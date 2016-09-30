@@ -70,7 +70,7 @@ if $cygwin ; then
 fi
 
 
-DEFAULT_OPTS="$DEFAULT_OPTS -Dproject.home=\"$PROJECT_HOME\"  -Damoeba.home=\"$PROJECT_HOME\" -Dproject.name=\"$APP_NAME\" -Dproject.output=\"$APP_OUTPUT_PATH\" -Dignore.signals=\"$IGNORE_SIGNALS\" "
+DEFAULT_OPTS="$DEFAULT_OPTS -Dproject.home=\"$PROJECT_HOME\"  -Dproject.name=\"$APP_NAME\" -Dproject.output=\"$PROJECT_OUTPUT\" -Dignore.signals=\"$IGNORE_SIGNALS\" "
 
 if [ -n "$APP_PID_PATH" ]; then
 	DEFAULT_OPTS="$DEFAULT_OPTS -Dproject.pid.path=\"$APP_PID_PATH\""

@@ -22,25 +22,26 @@ set PROJECT_HOME=%~dp0..
 if not "%PROJECT_HOME%"=="" goto START_PROJECT
 
 echo.
-echo 错误: 必须设置环境变量“PROJECT_HOME”，指向Amoeba的安装路径
+echo 错误: 必须设置环境变量“PROJECT_HOME”
 echo.
 goto END
 
 :START_PROJECT
 
-
-@REM FOR /F "tokens=1,* delims=.=" %%G IN (%PROJECT_HOME%\jvm.properties) DO (
-@REM  	 set %%G=%%H
-@REM  	 echo %%G=%%H
-@REM  )
-
-
-set DEFAULT_OPTS=-server -Xms256m -Xmx1024m -Xss256k
+set DEFAULT_OPTS=-server -Xms256m -Xmx2048m -Xss256k
 set DEFAULT_OPTS=%DEFAULT_OPTS% -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+UseParallelGC -XX:+UseBiasedLocking -XX:NewSize=64m
 set DEFAULT_OPTS=%DEFAULT_OPTS% "-Dproject.home=%PROJECT_HOME%"
-set DEFAULT_OPTS=%DEFAULT_OPTS% "-Dproject.name=VENUS_BUS"
+set DEFAULT_OPTS=%DEFAULT_OPTS% "-Dproject.output=%PROJECT_OUTPUT%"
+ 
 set DEFAULT_OPTS=%DEFAULT_OPTS% "-Dclassworlds.conf=%PROJECT_HOME%\bin\launcher.classpath"
 
+FOR /F "eol=# tokens=1,* delims=.=" %%G IN (%PROJECT_HOME%\jvm.properties) DO (
+	if not "%%G"=="" (
+		set DEFAULT_OPTS=%DEFAULT_OPTS% "-D%%G=%%H"
+	)
+)
+
+set DEFAULT_OPTS=%DEFAULT_OPTS% "-Dproject.output=%LOG_HOME%"
 set JAVA_EXE="%JAVA_HOME%\bin\java.exe"
 set CLASSPATH="%PROJECT_HOME%\lib\plexus-classworlds-2.4.4-HEXNOVA.jar"
 set MAIN_CLASS="org.codehaus.classworlds.Launcher"

@@ -3,13 +3,13 @@
 #-------------------------------------------------------------------
 #    Venus Bootstrap Script 
 #
-#    需要设置如下环境变量：
+#    �?��设置如下环境变量�?
 #
-#      JAVA_HOME           - JDK的安装路径
+#      JAVA_HOME           - JDK的安装路�?
 #
 #-------------------------------------------------------------------
 
-# 判断是否在cygwin环境下
+# 判断是否在cygwin环境�?
 cygwin=false;
 case "`uname`" in
   CYGWIN*) cygwin=true ;;
@@ -32,7 +32,7 @@ if $noJavaHome ; then
     exit 1
 fi
 
-# 用该脚本的位置推断PROJECT_HOME的路径.
+# 用该脚本的位置推断PROJECT_HOME的路�?
 CURR_DIR=`pwd`
 cd `dirname "$0"`/..
 PROJECT_HOME=`pwd`

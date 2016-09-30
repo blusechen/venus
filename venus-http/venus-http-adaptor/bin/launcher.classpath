@@ -1,4 +1,4 @@
-main is com.meidusa.venus.backend.http.VenusJettyServer from venus
+main is com.meidusa.toolkit.web.runtime.WebApplication from venus
 
 [venus]
 load ${project.home}/lib/*.jar
