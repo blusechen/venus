@@ -4,13 +4,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.meidusa.venus</groupId>
 	<artifactId>venus</artifactId>
-	<version>3.2.19</version>
+	<version>3.2.20</version>
 	<packaging>pom</packaging>
 	
 	<name>${project.artifactId} v${project.version}</name>
 	<properties>
 		<spring.version>3.2.4.RELEASE</spring.version>
-		<venus.version>3.2.19</venus.version>
+		<venus.version>3.2.20</venus.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<slf4j.version>1.7.5</slf4j.version>
 		<logback.version>1.0.13</logback.version>
@@ -262,7 +262,7 @@
 			<dependency>
 				<groupId>com.meidusa.toolkit.net</groupId>
 				<artifactId>toolkit-net-nio</artifactId>
-				<version>1.0.14</version>
+				<version>1.0.15</version>
 			</dependency>
 
 			<dependency>
@@ -378,19 +378,19 @@
 	</build>
 	<distributionManagement>
 		<repository>
-			<id>saic-open</id>
+			<id>release-open</id>
 			<name>Internal Releases</name>
 			<url>http://maven.hexnova.com/nexus/content/repositories/release-open</url>
 		</repository>
 		<snapshotRepository>
-			<id>saic-open</id>
+			<id>release-open</id>
 			<name>Internal snapshots</name>
 			<url>http://maven.hexnova.com/nexus/content/repositories/snapshot-open</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<repositories>
 		<repository>
-			<id>hexnova-open</id>
+			<id>release-open</id>
 			<url>http://maven.hexnova.com/nexus/content/groups/hexnova-open</url>
 			<releases>
 				<enabled>true</enabled>

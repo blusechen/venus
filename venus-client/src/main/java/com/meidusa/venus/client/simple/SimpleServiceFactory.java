@@ -144,4 +144,9 @@ public class SimpleServiceFactory implements ServiceFactory {
         // TODO Auto-generated method stub
 
     }
+
+	@Override
+	public <T> T getService(String name, Class<T> t) {
+		return getService(t);
+	}
 }

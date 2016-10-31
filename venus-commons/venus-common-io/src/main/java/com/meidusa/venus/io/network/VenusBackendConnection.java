@@ -140,7 +140,7 @@ public class VenusBackendConnection extends AuthingableBackendConnection impleme
         if (buffer.position() < offset + PacketConstant.PACKET_HEADER_SIZE) {
             return -1;
         } else {
-            int length = buffer.get(offset) & 0xff << 24;
+            int length = (buffer.get(offset) & 0xff) << 24;
             length |= (buffer.get(++offset) & 0xff) << 16;
             length |= (buffer.get(++offset) & 0xff) << 8;
             length |= (buffer.get(++offset) & 0xff) << 0;

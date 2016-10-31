@@ -29,6 +29,7 @@ import com.meidusa.venus.digester.DigesterRuleParser;
 import com.meidusa.venus.exception.xml.ExceptionConfig;
 import com.meidusa.venus.util.ClasspathAnnotationScanner;
 
+@SuppressWarnings("deprecation")
 public class XmlVenusExceptionFactory implements VenusExceptionFactory {
     private static Logger logger = LoggerFactory.getLogger(XmlVenusExceptionFactory.class);
     private static ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();

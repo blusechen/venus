@@ -36,6 +36,10 @@ public class VenusRouterPacket extends AbstractVenusPacket {
      * 服务请求进入bus的时间点,仅仅用于bus中
      */
     public transient long startTime;
+    
+    public transient String api;
+    
+    public transient String traceId;
 
     /**
      * 客户端的原始IP

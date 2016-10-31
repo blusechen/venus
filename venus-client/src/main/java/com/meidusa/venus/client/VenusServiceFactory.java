@@ -21,13 +21,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.naming.Context;
-import javax.naming.Name;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtilsBean;
@@ -38,9 +34,7 @@ import org.apache.commons.digester.xmlrules.FromXmlRuleSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -76,6 +70,7 @@ import com.meidusa.venus.client.xml.bean.ServiceConfig;
 import com.meidusa.venus.client.xml.bean.VenusClient;
 import com.meidusa.venus.digester.DigesterRuleParser;
 import com.meidusa.venus.exception.CodedException;
+import com.meidusa.venus.exception.ServiceNotFoundException;
 import com.meidusa.venus.exception.VenusConfigException;
 import com.meidusa.venus.exception.VenusExceptionFactory;
 import com.meidusa.venus.exception.XmlVenusExceptionFactory;
@@ -185,9 +180,28 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
             throw new IllegalStateException("service factory has been shutdown");
         }
         ServiceDefinedBean object = servicesMap.get(t);
-
+        
+        if(object == null){
+        	throw new ServiceNotFoundException(t.getName() +" not defined");
+        }
+        
         return (T) object.service;
     }
+    
+    @SuppressWarnings("unchecked")
+    public <T> T getService(String name,Class<T> t) {
+        if (shutdown) {
+            throw new IllegalStateException("service factory has been shutdown");
+        }
+        ServiceDefinedBean object = serviceBeanMap.get(name);
+        
+        if(object == null){
+        	throw new ServiceNotFoundException(t.getName() +" not defined");
+        }
+        
+        return (T) object.service;
+    }
+
 
     @SuppressWarnings("unchecked")
     public void afterPropertiesSet() throws Exception {

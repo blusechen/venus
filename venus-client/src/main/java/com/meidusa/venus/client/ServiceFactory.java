@@ -24,6 +24,8 @@ package com.meidusa.venus.client;
 public interface ServiceFactory {
 
     public <T> T getService(Class<T> t);
+    
+    public <T> T getService(String name,Class<T> t);
 
     // public <T> T getService(Class<T> t,String address);
 

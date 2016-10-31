@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 
+import com.meidusa.toolkit.util.MemoryParser;
 import com.meidusa.toolkit.util.TimeUtil;
 
 public abstract class AbstractBIOConnection {
@@ -16,7 +17,16 @@ public abstract class AbstractBIOConnection {
     protected long lastMessageSent = TimeUtil.currentTimeMillis();
     private String remoteAddress;
     private static int DEFAULT_BUFFER_SIZE = 4096;
-    public static int MAX_BUFFER_SIZE = Integer.getInteger("tookit.packet.max", 2 * 1024 * 1024);
+    
+    protected static int MAX_BUFFER_SIZE = 4 * 1024 * 1024;
+    static {
+    	int max = MemoryParser.parser(MAX_BUFFER_SIZE);
+    	if(max < MAX_BUFFER_SIZE){
+    		max = MAX_BUFFER_SIZE;
+    	}
+    	MAX_BUFFER_SIZE = max;
+    }
+    
     private byte[] tmp = new byte[4096];
 
     protected ByteBuffer _buffer = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE);
@@ -62,7 +72,7 @@ public abstract class AbstractBIOConnection {
         if (buffer.position() < offset + getHeaderSize()) {
             return -1;
         } else {
-            int length = buffer.get(offset) & 0xff << 24;
+            int length = (buffer.get(offset) & 0xff) << 24;
             length |= (buffer.get(++offset) & 0xff) << 16;
             length |= (buffer.get(++offset) & 0xff) << 8;
             length |= (buffer.get(++offset) & 0xff) << 0;
@@ -94,7 +104,7 @@ public abstract class AbstractBIOConnection {
                         // don't let things grow without bounds
                         if (_length < -1 || _length > MAX_BUFFER_SIZE) {
                             throw new IOException("over max packet limit,current=" + _length + " , limit=" + MAX_BUFFER_SIZE
-                                    + ",improved limit via set System property (-Dtookit.packet.max= newlimit)");
+                                    + ",improved limit via set System property (-Dtoolkit.packet.max= newlimit)");
                         }
 
                         if (_length >= 0 && _length < this.getHeaderSize()) {

@@ -3,7 +3,7 @@
   <parent>
     <artifactId>venus-extension</artifactId>
     <groupId>com.meidusa.venus.extension</groupId>
-    <version>3.2.19</version>
+    <version>3.2.20</version>
   </parent>
   
   <artifactId>venus-extension-cache</artifactId>
