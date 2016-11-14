@@ -69,7 +69,7 @@ public class PerformanceHandler {
 
             if (pLevel.isPrintParams()) {
                 buffer.append(", params=");
-                buffer.append(JSON.toJSONString(parameterMap, new SerializerFeature[]{SerializerFeature.ShortString}));
+                buffer.append(JSON.toJSONString(parameterMap, JSON.DEFAULT_GENERATE_FEATURE,new SerializerFeature[]{SerializerFeature.ShortString}));
             }
             if (pLevel.isPrintResult()) {
                 buffer.append(", result=");
