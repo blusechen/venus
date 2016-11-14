@@ -2,7 +2,7 @@ package com.meidusa.venus.notify.io.json;
 
 import java.lang.reflect.Type;
 
-import com.meidusa.fastjson.parser.DefaultExtJSONParser;
+import com.meidusa.fastjson.parser.DefaultJSONParser;
 import com.meidusa.fastjson.parser.JSONLexer;
 import com.meidusa.fastjson.parser.JSONToken;
 import com.meidusa.fastjson.parser.deserializer.ObjectDeserializer;
@@ -13,7 +13,7 @@ public class ReferenceInvocationListenerDeserializer implements ObjectDeserializ
     public final static ReferenceInvocationListenerDeserializer instance = new ReferenceInvocationListenerDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
+    public <T> T deserialze(DefaultJSONParser parser, Type type,Object fieldName) {
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);

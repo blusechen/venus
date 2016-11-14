@@ -12,8 +12,8 @@ import com.meidusa.fastjson.parser.DefaultExtJSONParser;
 
 public class PacketDeserializer extends ElementDeserializer {
 
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
-        Element element = super.deserialze(parser, type);
+    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
+        Element element = super.deserialze(parser, type, fieldName);
 
         if (element == null) {
             return null;

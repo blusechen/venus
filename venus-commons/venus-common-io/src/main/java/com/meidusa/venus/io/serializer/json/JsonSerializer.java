@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.meidusa.fastjson.JSON;
 import com.meidusa.fastjson.parser.DefaultExtJSONParser;
+import com.meidusa.fastjson.parser.ParserConfig;
 import com.meidusa.venus.io.packet.PacketConstant;
 import com.meidusa.venus.io.packet.ServicePacketBuffer;
 import com.meidusa.venus.io.serializer.AbstractSerializer;
@@ -49,17 +50,14 @@ public class JsonSerializer extends AbstractSerializer implements PacketConstant
 
     @Override
     public Object decode(byte[] bts, Type type) {
-        DefaultExtJSONParser parser;
-        parser = new DefaultExtJSONParser(new String(bts, PACKET_CHARSET).trim());
-
-        return parser.parseObject(type);
-
+		return JSON.parseObject(new String(bts, PACKET_CHARSET).trim(), type);
     }
 
     @Override
     public Map<String, Object> decode(byte[] bts, Map<String, Type> typeMap) {
         if (bts != null && bts.length > 0) {
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(new String(bts, PACKET_CHARSET).trim());
+            DefaultExtJSONParser parser = new DefaultExtJSONParser(new String(bts, PACKET_CHARSET).trim(),
+            		ParserConfig.getGlobalInstance(),JSON.DEFAULT_PARSER_FEATURE);
             return parser.parseObjectWithTypeMap(typeMap);
         }
         return null;
