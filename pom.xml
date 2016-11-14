@@ -276,7 +276,7 @@
 			<dependency>
 				<groupId>com.meidusa.toolkit</groupId>
 				<artifactId>fastbson</artifactId>
-				<version>1.3.2</version>
+				<version>1.3.3</version>
 			</dependency>
 			<dependency>
 				<groupId>com.meidusa.toolkit</groupId>
