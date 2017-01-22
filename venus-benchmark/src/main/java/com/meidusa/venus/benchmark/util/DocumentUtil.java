@@ -26,7 +26,7 @@ import com.meidusa.toolkit.common.util.StringUtil;
 
 public class DocumentUtil {
 
-    /**
+	/**
      * 得到唯一的一个节点，多于一个节点将抛出 ConfigurationException 异常。 没有节点的时候返回null
      * 
      * @param current

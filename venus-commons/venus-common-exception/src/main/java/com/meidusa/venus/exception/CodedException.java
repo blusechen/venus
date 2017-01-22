@@ -6,6 +6,7 @@ package com.meidusa.venus.exception;
  * @author structchen
  * 
  */
+@Deprecated
 public interface CodedException {
     int getErrorCode();
 

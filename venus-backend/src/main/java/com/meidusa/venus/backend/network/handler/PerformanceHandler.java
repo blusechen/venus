@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class PerformanceHandler {
     private static Logger performanceLogger = LoggerFactory.getLogger("venus.backend.performance");
-
+    private static SerializerFeature[] JSON_FEATURE = new SerializerFeature[]{SerializerFeature.ShortString,SerializerFeature.IgnoreNonFieldGetter,SerializerFeature.SkipTransientField};
     public static void logPerformance(Endpoint endpoint, SerializeServiceRequestPacket request, long queuedTime,
                                       long executeTime, String remoteIp, String sourceIP, Object result) {
         String traceId;
@@ -69,7 +69,7 @@ public class PerformanceHandler {
 
             if (pLevel.isPrintParams()) {
                 buffer.append(", params=");
-                buffer.append(JSON.toJSONString(parameterMap, JSON.DEFAULT_GENERATE_FEATURE,new SerializerFeature[]{SerializerFeature.ShortString}));
+                buffer.append(JSON.toJSONString(parameterMap, JSON.DEFAULT_GENERATE_FEATURE,JSON_FEATURE));
             }
             if (pLevel.isPrintResult()) {
                 buffer.append(", result=");
@@ -84,7 +84,7 @@ public class PerformanceHandler {
                         buffer.append(", className=\"").append(((Response) result).getException().getClass().getSimpleName()).append("\"");
                         buffer.append("}");
                     } else {
-                        buffer.append(JSON.toJSONString(result, new SerializerFeature[]{SerializerFeature.ShortString}));
+                        buffer.append(JSON.toJSONString(result, JSON_FEATURE));
                     }
                 }
             }

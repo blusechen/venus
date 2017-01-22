@@ -1,8 +1,9 @@
 package com.meidusa.venus.exception;
 
 import com.meidusa.venus.annotations.RemoteException;
+import com.meidusa.venus.annotations.RemoteException.Level;
 
-@RemoteException(errorCode=VenusExceptionCodeConstant.SERVICE_VERSION_NOT_ALLOWD_EXCEPTION)
+@RemoteException(errorCode=VenusExceptionCodeConstant.SERVICE_VERSION_NOT_ALLOWD_EXCEPTION,level=Level.ERROR)
 public class ServiceVersionNotAllowException extends AbstractVenusException {
     private static final long serialVersionUID = 1L;
 
@@ -16,6 +17,6 @@ public class ServiceVersionNotAllowException extends AbstractVenusException {
     }
 
     public ExceptionLevel getLevel() {
-        return ExceptionLevel.INFO;
+        return ExceptionLevel.ERROR;
     }
 }

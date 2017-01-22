@@ -4,6 +4,7 @@
 package com.meidusa.venus.exception;
 
 import com.meidusa.venus.annotations.RemoteException;
+import com.meidusa.venus.annotations.RemoteException.Level;
 
 /**
  * 
@@ -11,7 +12,7 @@ import com.meidusa.venus.annotations.RemoteException;
  * @author Sun Ning
  * @since 2010-3-4
  */
-@RemoteException(errorCode=VenusExceptionCodeConstant.REQUEST_ILLEGAL)
+@RemoteException(errorCode=VenusExceptionCodeConstant.REQUEST_ILLEGAL,level=Level.ERROR)
 public class InvalidRequestException extends AbstractVenusException {
     private static final long serialVersionUID = -1583661559860123414L;
 

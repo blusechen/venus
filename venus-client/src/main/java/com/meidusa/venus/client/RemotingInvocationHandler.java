@@ -78,7 +78,7 @@ import com.meidusa.venus.util.VenusTracerUtil;
  * 
  */
 public class RemotingInvocationHandler extends VenusInvocationHandler{
-	private static SerializerFeature[] JSON_FEATURE = new SerializerFeature[]{SerializerFeature.ShortString};
+	private static SerializerFeature[] JSON_FEATURE = new SerializerFeature[]{SerializerFeature.ShortString,SerializerFeature.IgnoreNonFieldGetter,SerializerFeature.SkipTransientField};
     private static Logger logger = LoggerFactory.getLogger(RemotingInvocationHandler.class);
     private static Logger performanceLogger = LoggerFactory.getLogger("venus.client.performance");
     private InvocationListenerContainer container;

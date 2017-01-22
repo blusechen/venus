@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.meidusa.venus.commons</groupId>
 		<artifactId>venus-commons</artifactId>
-		<version>3.3.0</version>
+		<version>3.3.1</version>
 	</parent>
 
 	<artifactId>venus-common-io</artifactId>

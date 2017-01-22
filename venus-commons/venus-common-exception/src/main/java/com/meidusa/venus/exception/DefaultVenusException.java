@@ -1,5 +1,9 @@
 package com.meidusa.venus.exception;
 
+import com.meidusa.venus.annotations.RemoteException;
+import com.meidusa.venus.annotations.RemoteException.Level;
+
+@RemoteException(errorCode=VenusExceptionCodeConstant.UNKNOW_EXCEPTION,level=Level.ERROR)
 public class DefaultVenusException extends AbstractVenusException {
     private static final long serialVersionUID = 1L;
     private int errorCode;

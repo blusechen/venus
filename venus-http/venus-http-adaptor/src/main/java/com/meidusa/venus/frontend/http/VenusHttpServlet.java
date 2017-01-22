@@ -187,7 +187,6 @@ public class VenusHttpServlet extends HttpServlet {
         boolean isError = false;
         try {
         	if(StringUtil.isEmpty(traceId)){
-        		UUID uuid = new UUID(VenusTracerUtil.randomUUID());
         		traceId = new UUID(VenusTracerUtil.randomUUID()).toString();
         	}
             // invoke service endpoint

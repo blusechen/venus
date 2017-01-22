@@ -3,7 +3,11 @@
  */
 package com.meidusa.venus.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * 异常编码注释，该annotation只用于Exception class
@@ -19,9 +23,28 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RemoteException {
     
+	public enum Level {
+		ERROR(3), WARN(2), INFO(1), DEBUG(0);
+
+		private int level;
+		
+		private Level(int level){
+			this.level = level;
+		}
+		public int toInt() {
+			return this.level;
+		}
+	}
+	
     /**
      * 错误编码
      * @return
      */
     int errorCode();
+    
+    /**
+     * 是否属于
+     * @return
+     */
+    Level level() default Level.DEBUG;
 }

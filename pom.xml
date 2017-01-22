@@ -4,17 +4,17 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.meidusa.venus</groupId>
 	<artifactId>venus</artifactId>
-	<version>3.3.0</version>
+	<version>3.3.1</version>
 	<packaging>pom</packaging>
 	
 	<name>${project.artifactId} v${project.version}</name>
 	<properties>
 		<spring.version>3.2.4.RELEASE</spring.version>
-		<venus.version>3.3.0</venus.version>
+		<venus.version>3.3.1</venus.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<slf4j.version>1.7.5</slf4j.version>
 		<logback.version>1.0.13</logback.version>
-		<fastjson-hexnova.version>1.4.0</fastjson-hexnova.version>
+		<fastjson-hexnova.version>1.4.3</fastjson-hexnova.version>
 	</properties>
 	<modules>
 		<module>venus-backend</module>
@@ -276,7 +276,7 @@
 			<dependency>
 				<groupId>com.meidusa.toolkit</groupId>
 				<artifactId>fastbson</artifactId>
-				<version>1.3.3</version>
+				<version>1.3.4</version>
 			</dependency>
 			<dependency>
 				<groupId>com.meidusa.toolkit</groupId>
@@ -297,7 +297,7 @@
 			<dependency>
 				<groupId>com.meidusa.toolkit</groupId>
 				<artifactId>fastmark</artifactId>
-				<version>1.0.2</version>
+				<version>1.0.3</version>
 			</dependency>
 		</dependencies>
 

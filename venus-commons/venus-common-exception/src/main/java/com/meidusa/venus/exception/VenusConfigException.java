@@ -1,8 +1,9 @@
 package com.meidusa.venus.exception;
 
 import com.meidusa.venus.annotations.RemoteException;
+import com.meidusa.venus.annotations.RemoteException.Level;
 
-@RemoteException(errorCode=VenusExceptionCodeConstant.VENUS_CONFIG_EXCEPTION)
+@RemoteException(errorCode=VenusExceptionCodeConstant.VENUS_CONFIG_EXCEPTION,level=Level.ERROR)
 public class VenusConfigException extends AbstractVenusException implements VenusExceptionCodeConstant {
     private static final long serialVersionUID = 1L;
 

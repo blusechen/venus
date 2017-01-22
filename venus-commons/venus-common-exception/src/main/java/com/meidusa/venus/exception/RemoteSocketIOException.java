@@ -1,8 +1,9 @@
 package com.meidusa.venus.exception;
 
 import com.meidusa.venus.annotations.RemoteException;
+import com.meidusa.venus.annotations.RemoteException.Level;
 
-@RemoteException(errorCode=VenusExceptionCodeConstant.REMOTE_SOCKET_IO_EXCEPTION)
+@RemoteException(errorCode=VenusExceptionCodeConstant.REMOTE_SOCKET_IO_EXCEPTION,level=Level.ERROR)
 public class RemoteSocketIOException extends AbstractVenusException {
 	private static final long serialVersionUID = 1L;
 

@@ -86,7 +86,7 @@ import com.meidusa.venus.util.concurrent.MultiQueueRunnable;
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontendConnection, Tuple<Long, byte[]>>, Initialisable {
-	private static SerializerFeature[] JSON_FEATURE = new SerializerFeature[]{SerializerFeature.ShortString};
+	private static SerializerFeature[] JSON_FEATURE = new SerializerFeature[]{SerializerFeature.ShortString,SerializerFeature.IgnoreNonFieldGetter,SerializerFeature.SkipTransientField};
     private static final String TIMEOUT = "waiting-timeout for execution,api=%s,ip=%s,time=%d (ms)";
     static Map<Class<?>,Integer> codeMap = new HashMap<Class<?>,Integer>();
     static {
@@ -291,10 +291,7 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
                                         + "}", e);
                             }
                         } else {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug(e.getMessage() + " [ip=" + conn.getHost() + ":" + conn.getPort() + ",sourceIP=" + finalSourceIp + ", apiName="
-                                        + apiPacket.apiName + "]", e);
-                            }
+                        	logger.error(e.getMessage() + " [ip=" + conn.getHost() + ":" + conn.getPort() + ",sourceIP=" + finalSourceIp + ", apiName="+ apiPacket.apiName + "]", e);
                         }
                     }else{
                         logger.error(e.getMessage() + " [ip=" + conn.getHost() + ":" + conn.getPort() + ",sourceIP=" + finalSourceIp + ", apiName="+ apiPacket.apiName + "]", e);
@@ -439,7 +436,7 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
 
             if (pLevel.isPrintParams()) {
                 buffer.append(", params=");
-                buffer.append(JSON.toJSONString(parameterMap,new SerializerFeature[]{SerializerFeature.ShortString}));
+                buffer.append(JSON.toJSONString(parameterMap,JSON_FEATURE));
             }
             if (pLevel.isPrintResult()) {
             	buffer.append(", result=");
@@ -454,7 +451,7 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
                 		buffer.append(", className=\"").append(((Response) result).getException().getClass().getSimpleName()).append("\"");
                 		buffer.append("}");
             		}else{
-            			buffer.append(JSON.toJSONString(result,new SerializerFeature[]{SerializerFeature.ShortString}));
+            			buffer.append(JSON.toJSONString(result,JSON_FEATURE));
             		}
             	}
             }
@@ -480,7 +477,7 @@ public class ServiceInvokeMessageHandler implements MessageHandler<VenusFrontend
         } else {
 	        	buffer.append(", params=");
 	        	if (performancePrintParamsLogger.isDebugEnabled()) {
-					buffer.append(JSON.toJSONString(parameterMap,new SerializerFeature[]{SerializerFeature.ShortString}));
+					buffer.append(JSON.toJSONString(parameterMap,JSON_FEATURE));
 				}else{
 					buffer.append("{print.params:disabled}");
 				}

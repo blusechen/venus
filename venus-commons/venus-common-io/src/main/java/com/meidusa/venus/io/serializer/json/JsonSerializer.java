@@ -58,7 +58,11 @@ public class JsonSerializer extends AbstractSerializer implements PacketConstant
         if (bts != null && bts.length > 0) {
             DefaultExtJSONParser parser = new DefaultExtJSONParser(new String(bts, PACKET_CHARSET).trim(),
             		ParserConfig.getGlobalInstance(),JSON.DEFAULT_PARSER_FEATURE);
-            return parser.parseObjectWithTypeMap(typeMap);
+            try{
+            	return parser.parseObjectWithTypeMap(typeMap);
+            }finally{
+            	parser.close();
+            }
         }
         return null;
     }

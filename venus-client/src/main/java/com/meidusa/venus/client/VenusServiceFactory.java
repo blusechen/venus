@@ -35,11 +35,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.AutowireCandidateQualifier;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
@@ -661,7 +663,6 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
                 	BeanDefinitionRegistry reg = (BeanDefinitionRegistry)beanFactory;
                 	GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
                 	beanDefinition.setBeanClass(ServiceFactoryBean.class);
-                	
                 	beanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
                 	ConstructorArgumentValues args = new ConstructorArgumentValues();
                 	args.addIndexedArgumentValue(0,bean);
@@ -677,18 +678,18 @@ public class VenusServiceFactory implements ServiceFactory,ApplicationContextAwa
 			for (Map.Entry<String, ServiceDefinedBean> entry : serviceBeanMap.entrySet()) {
 				final Object bean = entry.getValue().service;
 				if (beanFactory instanceof BeanDefinitionRegistry) {
-
+					String beanName = entry.getValue().beanName;
+					
 					BeanDefinitionRegistry reg = (BeanDefinitionRegistry) beanFactory;
 					GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
 					beanDefinition.setBeanClass(ServiceFactoryBean.class);
-
+					beanDefinition.addQualifier(new AutowireCandidateQualifier(Qualifier.class, beanName));
 					beanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
 					ConstructorArgumentValues args = new ConstructorArgumentValues();
 					args.addIndexedArgumentValue(0, bean);
 					args.addIndexedArgumentValue(1, entry.getValue().clazz);
 					beanDefinition.setConstructorArgumentValues(args);
-
-					String beanName = entry.getValue().beanName;
+					
 					beanDefinition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_NAME);
 					reg.registerBeanDefinition(beanName, beanDefinition);
 
